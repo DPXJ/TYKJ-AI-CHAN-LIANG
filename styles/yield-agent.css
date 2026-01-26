@@ -319,6 +319,17 @@
 }
 
 /* 地块信息确认页面 */
+.yield-field-info-page {
+    min-height: 100vh;
+    background: #f8f9fa;
+}
+
+.yield-field-info-page .yield-content {
+    padding: 20px;
+    padding-bottom: 80px; /* 增加底部间距 */
+    overflow-y: auto;
+}
+
 .yield-field-info-page .field-info-section,
 .yield-field-info-page .sensor-info-section {
     margin-bottom: 20px;
@@ -462,6 +473,17 @@
 }
 
 /* 产量预测报告页面 */
+.yield-report-page {
+    min-height: 100vh;
+    background: #f8f9fa;
+}
+
+.yield-report-page .yield-content {
+    padding: 20px;
+    padding-bottom: 80px; /* 增加底部间距，确保内容完整显示 */
+    overflow-y: auto;
+}
+
 .yield-report-page .report-title-card {
     text-align: center;
     padding: 30px 20px;
@@ -601,4 +623,620 @@
 
 .report-info-section h3 i {
     color: #667eea;
+}
+
+/* 报告页面操作按钮 */
+.yield-report-page .result-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+}
+
+.yield-report-page .result-actions button {
+    flex: 1;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.yield-report-page .btn-secondary {
+    background: white;
+    color: #666;
+    border: 1px solid #e0e0e0;
+}
+
+.yield-report-page .btn-secondary:hover {
+    background: #f5f7fa;
+    border-color: #d0d0d0;
+}
+
+.yield-report-page .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.yield-report-page .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+/* 地块信息确认页面按钮 */
+.yield-field-info-page .result-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.yield-field-info-page .result-actions button {
+    flex: 1;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.yield-field-info-page .btn-secondary {
+    background: white;
+    color: #666;
+    border: 1px solid #e0e0e0;
+}
+
+.yield-field-info-page .btn-secondary:hover {
+    background: #f5f7fa;
+    border-color: #d0d0d0;
+}
+
+.yield-field-info-page .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.yield-field-info-page .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+/* 确保内容区域滚动正常 */
+.yield-report-page .yield-content,
+.yield-field-info-page .yield-content {
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+}
+
+/* 温馨提示样式优化 */
+.yield-report-page .result-tip,
+.yield-field-info-page .confirm-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #fff7e6;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.yield-report-page .result-tip i,
+.yield-field-info-page .confirm-tip i {
+    color: #ff9800;
+    font-size: 18px;
+    margin-top: 2px;
+}
+
+.yield-report-page .result-tip span,
+.yield-field-info-page .confirm-tip span {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+    flex: 1;
+}
+
+/* AI智能分析区域 */
+.ai-analysis-section {
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 16px;
+}
+
+.ai-analysis-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.ai-analysis-section h3 i {
+    color: #667eea;
+}
+
+.analysis-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.analysis-item {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+}
+
+.analysis-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.analysis-title i {
+    color: #667eea;
+}
+
+.analysis-content {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #666;
+}
+
+.analysis-content p {
+    margin-bottom: 8px;
+}
+
+.analysis-content ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.analysis-content li {
+    margin: 6px 0;
+    line-height: 1.6;
+}
+
+.analysis-content strong {
+    color: #333;
+    font-weight: 600;
+}
+
+.status-good {
+    color: #52c41a;
+    font-weight: 600;
+}
+
+.status-low {
+    color: #52c41a;
+    font-weight: 600;
+}
+
+.status-balance {
+    color: #1890ff;
+    font-weight: 600;
+}
+
+.status-stable {
+    color: #52c41a;
+    font-weight: 600;
+}
+
+/* 影响因素分析区域 */
+.factors-section {
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 16px;
+}
+
+.factors-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.factors-section h3 i {
+    color: #667eea;
+}
+
+.factors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.factor-item {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.factor-item.positive {
+    background: linear-gradient(135deg, rgba(82, 196, 26, 0.05) 0%, rgba(82, 196, 26, 0.02) 100%);
+    border: 1px solid rgba(82, 196, 26, 0.2);
+}
+
+.factor-item.attention {
+    background: linear-gradient(135deg, rgba(250, 173, 20, 0.05) 0%, rgba(250, 173, 20, 0.02) 100%);
+    border: 1px solid rgba(250, 173, 20, 0.2);
+}
+
+.factor-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 20px;
+}
+
+.factor-item.positive .factor-icon {
+    background: #52c41a;
+    color: white;
+}
+
+.factor-item.attention .factor-icon {
+    background: #faad14;
+    color: white;
+}
+
+.factor-content {
+    flex: 1;
+}
+
+.factor-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.factor-content ul {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.factor-content li {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #666;
+    margin: 6px 0;
+}
+
+/* 价格趋势分析 */
+.price-trend-section {
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 16px;
+}
+
+.price-trend-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.price-trend-section h3 i {
+    color: #667eea;
+}
+
+.price-analysis {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.price-current {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+}
+
+.price-label {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 8px;
+}
+
+.price-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.price-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.price-change.up {
+    background: rgba(82, 196, 26, 0.1);
+    color: #52c41a;
+}
+
+.price-change i {
+    font-size: 12px;
+}
+
+.price-prediction {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.price-info p {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.price-info ul {
+    padding-left: 20px;
+    margin: 8px 0 0 0;
+}
+
+.price-info li {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #666;
+    margin: 6px 0;
+}
+
+/* 专家建议区域 */
+.suggestions-section {
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 16px;
+}
+
+.suggestions-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.suggestions-section h3 i {
+    color: #667eea;
+}
+
+.suggestion-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.suggestion-card {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.suggestion-card:hover {
+    background: #eef2f7;
+}
+
+.suggestion-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+}
+
+.suggestion-content {
+    flex: 1;
+}
+
+.suggestion-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.suggestion-content p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+    margin: 0;
+}
+
+/* 风险提示区域 */
+.risk-warning-section {
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 16px;
+}
+
+.risk-warning-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.risk-warning-section h3 i {
+    color: #667eea;
+}
+
+.warning-card {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.warning-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.warning-level.moderate {
+    background: rgba(250, 173, 20, 0.1);
+    color: #faad14;
+}
+
+.warning-content p {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.warning-content ul {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.warning-content li {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #666;
+    margin: 6px 0;
+}
+
+.warning-suggestion {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+}
+
+.warning-suggestion i {
+    color: #1890ff;
+    margin-top: 3px;
+}
+
+/* 数据来源说明区域 */
+.data-source-section {
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 16px;
+}
+
+.data-source-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.data-source-section h3 i {
+    color: #667eea;
+}
+
+.source-info p {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.source-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.source-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.source-item i {
+    color: #52c41a;
+    font-size: 16px;
+}
+
+.model-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-radius: 10px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+}
+
+.model-info i {
+    color: #667eea;
+    font-size: 18px;
+    margin-top: 2px;
 }
