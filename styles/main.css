@@ -2151,6 +2151,23 @@ body {
 .examples-modal.active { display: block; }
 /* 确保气象例子弹窗不受通用样式影响 */
 #weatherExamplesModal.examples-modal { position: fixed !important; z-index: 10000 !important; }
+/* 产量预测例子弹窗：内容区置于遮罩之上且可点击 */
+#yieldExamplesModal.examples-modal {
+    z-index: 10000 !important;
+    pointer-events: auto !important;
+}
+#yieldExamplesModal .modal-overlay {
+    z-index: 1 !important;
+    pointer-events: auto !important;
+}
+#yieldExamplesModal .modal-content {
+    z-index: 2 !important;
+    pointer-events: auto !important;
+}
+#yieldExamplesModal .modal-body,
+#yieldExamplesModal .example-item {
+    pointer-events: auto !important;
+}
 .examples-modal .modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); opacity: 0; transition: opacity 300ms ease; }
 .examples-modal.active .modal-overlay { opacity: 1; }
 
@@ -13754,8 +13771,9 @@ body {
 
 .price-home-content .ai-input-section {
     width: 100%;
-    max-width: 360px;
-    margin-bottom: 30px;
+    max-width: 320px;
+    margin: 0 auto 20px auto;
+    margin-top: -10px;
 }
 
 .price-home-content .ai-input-container {

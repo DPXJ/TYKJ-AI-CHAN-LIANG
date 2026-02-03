@@ -1278,67 +1278,62 @@ const pageData = {
         title: 'AI产量预测智能体',
         subtitle: '智能预测·精准分析·辅助决策',
         content: `
-            <div class="mobile-page price-agent-home-page">
+            <div class="mobile-page yield-home-page">
                 <div class="mobile-header">
                     <button class="back-btn" onclick="loadPage('home')">
                         <i class="fas fa-arrow-left"></i>
                     </button>
                     <h1>AI产量预测</h1>
                 </div>
-                <div class="mobile-content price-home-content">
+                <div class="mobile-content yield-home-content">
                     <!-- 历史记录按钮 -->
-                    <div class="history-btn-container">
-                        <button class="history-btn" onclick="showComingSoon('历史记录')">
+                    <div class="yield-history-btn">
+                        <button onclick="showComingSoon('历史记录')">
                             <i class="fas fa-history"></i>
                         </button>
                     </div>
                     
                     <!-- AI Logo 和欢迎文字 -->
-                    <div class="ai-welcome-section">
-                        <div class="ai-logo price-logo" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="yield-welcome">
+                        <div class="yield-logo">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <p class="ai-greeting">您好！我是AI产量预测智能体，基于大数据分析、气象条件和市场价格，为您提供精准的作物产量预测和地块产值评估......</p>
-                        <button class="examples-btn" onclick="showYieldExamplesModal()">
+                        <p class="yield-greeting">您好！我是AI产量预测智能体，基于大数据分析、气象条件和市场价格，为您提供精准的作物产量预测和地块产值评估......</p>
+                        <button class="yield-examples-btn" onclick="showYieldExamplesModal()">
                             <i class="fas fa-lightbulb"></i>
                             <span>例子</span>
                         </button>
                     </div>
 
-                    <!-- 输入区域 -->
-                    <div class="ai-input-section">
-                        <div class="ai-input-container">
-                            <textarea id="yieldHomeInput" class="ai-textarea" placeholder="请输入您想要查询的地区和作物，例如：
-今年商丘柘城种植的小麦预计多少产量？
-
-或者直接点击发送，我会引导您选择地块进行精准预测" rows="5"></textarea>
-                            <div class="ai-input-actions">
-                                <button class="voice-btn" onclick="showComingSoon('语音录入')">
-                                    <i class="fas fa-microphone"></i>
-                                </button>
-                                <button class="camera-btn" onclick="showComingSoon('拍照')">
-                                    <i class="fas fa-camera"></i>
-                                </button>
-                                <button class="send-btn" onclick="startYieldPredictionChat()">
-                                    <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
+                    <!-- 输入区域（多行文本框） -->
+                    <div class="yield-input-box">
+                        <textarea id="yieldHomeInput" class="yield-textarea" placeholder="输入您想要查询的地区和作物，例如：今年商丘小麦预计多少产量？" rows="3"></textarea>
+                        <div class="yield-input-actions">
+                            <button class="yield-action-btn" onclick="showComingSoon('语音')">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="yield-action-btn" onclick="showComingSoon('拍照')">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                            <button class="yield-send-btn" onclick="startYieldPredictionChat()">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
                         </div>
                     </div>
 
                     <!-- 快速访问 -->
-                    <div class="recommended-agents price-quick-access">
-                        <div class="agents-hint">快速访问</div>
-                        <div class="agents-grid">
-                            <div class="agent-card" onclick="triggerYieldFieldMode()">
+                    <div class="yield-quick-access">
+                        <div class="yield-hint">快速访问</div>
+                        <div class="yield-cards">
+                            <div class="yield-card" onclick="triggerYieldFieldMode()">
                                 <i class="fas fa-map-marked-alt"></i>
                                 <span>关联地块预测</span>
                             </div>
-                            <div class="agent-card" onclick="enterPriceAgent('小麦')">
+                            <div class="yield-card" onclick="enterPriceAgent('小麦')">
                                 <i class="fas fa-wheat-awn"></i>
                                 <span>小麦价格智能体</span>
                             </div>
-                            <div class="agent-card" onclick="loadWeatherDisasterHome()">
+                            <div class="yield-card" onclick="loadWeatherDisasterHome()">
                                 <i class="fas fa-cloud-sun-rain"></i>
                                 <span>气象灾害预警</span>
                             </div>
@@ -13560,44 +13555,56 @@ function startYieldPredictionChat() {
     }
 }
 
-// 开始产量预测对话(显示对话界面)
+// 开始产量预测对话(显示对话界面，与AI对话样式一致)
 function startYieldChatDialog(question) {
     const phoneContent = document.getElementById('phoneContent');
     phoneContent.innerHTML = `
-        <div class="mobile-page yield-chat-page">
-            <div class="mobile-header">
+        <div class="mobile-page agent-chat-page yield-chat-page">
+            <div class="mobile-header chat-header yield-chat-header">
                 <button class="back-btn" onclick="enterYieldPredictionAgent()">
                     <i class="fas fa-arrow-left"></i>
                 </button>
-                <h1>AI产量预测</h1>
+                <h1 class="yield-chat-title">AI产量预测</h1>
+                <button class="header-menu-btn" onclick="showComingSoon('更多')">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
             </div>
-            <div class="mobile-content chat-content">
-                <!-- 对话区域 -->
+            <div class="chat-messages-container" id="yieldChatMessagesWrap">
                 <div class="chat-messages" id="yieldChatMessages">
                     <!-- 用户消息 -->
-                    <div class="message user-message">
-                        <div class="message-content">${question}</div>
+                    <div class="chat-message user-message">
+                        <div class="message-content user-content">
+                            <div class="message-bubble">${question}</div>
+                        </div>
+                        <div class="message-avatar user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
                     </div>
-                    
                     <!-- AI思考中 -->
-                    <div class="message ai-message" id="aiThinking">
-                        <div class="message-avatar">
+                    <div class="chat-message ai-message" id="aiThinking">
+                        <div class="message-avatar ai-avatar">
                             <i class="fas fa-robot"></i>
                         </div>
-                        <div class="message-content typing">
-                            <span></span><span></span><span></span>
+                        <div class="message-content ai-content">
+                            <div class="message-bubble typing">
+                                <span></span><span></span><span></span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- 输入区域 -->
+            </div>
+            <div class="chat-input-area">
                 <div class="chat-input-container">
-                    <div class="chat-input-wrapper">
-                        <textarea id="yieldChatInput" class="chat-input" placeholder="继续提问..." rows="1"></textarea>
-                        <button class="send-btn" onclick="sendYieldChatMessage()">
-                            <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
+                    <button class="voice-btn" onclick="showComingSoon('语音')">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <input type="text" id="yieldChatInput" class="chat-input" placeholder="继续提问..." onkeypress="if(event.key==='Enter') sendYieldChatMessage()">
+                    <button class="add-btn" onclick="showComingSoon('更多')">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="send-btn" onclick="sendYieldChatMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -13619,36 +13626,35 @@ function showYieldChatResponse(question) {
     const chatMessages = document.getElementById('yieldChatMessages');
     if (!chatMessages) return;
     
-    // 生成AI回复内容
+    // 生成AI回复内容（简洁样式，无嵌套卡片）
     const aiResponse = `
-        <div class="message ai-message">
-            <div class="message-avatar">
+        <div class="yield-ai-reply">
+            <div class="yield-reply-avatar">
                 <i class="fas fa-robot"></i>
             </div>
-            <div class="message-content">
+            <div class="yield-reply-content">
                 <p>根据您的问题"${question}"，我为您分析如下：</p>
-                <div class="prediction-card">
-                    <h4><i class="fas fa-chart-bar"></i> 产量预测</h4>
-                    <div class="prediction-data">
-                        <div class="data-item">
-                            <span class="label">预测产量区间</span>
-                            <span class="value">700-950斤/亩</span>
-                        </div>
-                        <div class="data-item">
-                            <span class="label">平均产量</span>
-                            <span class="value">825斤/亩</span>
-                        </div>
+                <div class="yield-result-section">
+                    <div class="yield-result-title"><i class="fas fa-chart-bar"></i> 产量预测</div>
+                    <div class="yield-result-row">
+                        <span class="yield-result-label">预测产量区间</span>
+                        <span class="yield-result-value">700-950斤/亩</span>
+                    </div>
+                    <div class="yield-result-row">
+                        <span class="yield-result-label">平均产量</span>
+                        <span class="yield-result-value highlight">825斤/亩</span>
                     </div>
                 </div>
-                <p>💡 <strong>建议：</strong>如果您想要更精准的预测，可以<span class="link-text" onclick="loadYieldFieldList()">关联您的地块</span>，我会结合地块的传感器数据和气象条件，为您提供更详细的产值预估报告。</p>
+                <p class="yield-tip">💡 <strong>建议：</strong>如果您想要更精准的预测，可以<span class="link-text" onclick="loadYieldFieldList()">关联您的地块</span>，我会结合地块的传感器数据和气象条件，为您提供更详细的产值预估报告。</p>
             </div>
         </div>
     `;
     
     chatMessages.insertAdjacentHTML('beforeend', aiResponse);
     
-    // 滚动到底部
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    // 滚动到底部（滚动容器为 chat-messages-container）
+    const scrollContainer = chatMessages && chatMessages.closest('.chat-messages-container');
+    if (scrollContainer) scrollContainer.scrollTop = scrollContainer.scrollHeight;
 }
 
 // 发送对话消息
@@ -13661,10 +13667,15 @@ function sendYieldChatMessage() {
     const chatMessages = document.getElementById('yieldChatMessages');
     if (!chatMessages) return;
     
-    // 添加用户消息
+    // 添加用户消息（与AI对话样式一致）
     const userMessage = `
-        <div class="message user-message">
-            <div class="message-content">${message}</div>
+        <div class="chat-message user-message">
+            <div class="message-content user-content">
+                <div class="message-bubble">${message}</div>
+            </div>
+            <div class="message-avatar user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
         </div>
     `;
     chatMessages.insertAdjacentHTML('beforeend', userMessage);
@@ -13674,12 +13685,14 @@ function sendYieldChatMessage() {
     
     // 添加AI思考中
     const aiThinking = `
-        <div class="message ai-message" id="aiThinking2">
-            <div class="message-avatar">
+        <div class="chat-message ai-message" id="aiThinking2">
+            <div class="message-avatar ai-avatar">
                 <i class="fas fa-robot"></i>
             </div>
-            <div class="message-content typing">
-                <span></span><span></span><span></span>
+            <div class="message-content ai-content">
+                <div class="message-bubble typing">
+                    <span></span><span></span><span></span>
+                </div>
             </div>
         </div>
     `;
@@ -13700,16 +13713,18 @@ function sendYieldChatMessage() {
         if (hasFieldKeyword) {
             // 如果提到地块，引导用户选择地块
             const aiResponse = `
-                <div class="message ai-message">
-                    <div class="message-avatar">
+                <div class="chat-message ai-message">
+                    <div class="message-avatar ai-avatar">
                         <i class="fas fa-robot"></i>
                     </div>
-                    <div class="message-content">
-                        <p>好的，我来帮您关联地块进行精准预测。</p>
-                        <p>请点击下方按钮选择您的地块：</p>
-                        <button class="btn-primary" onclick="loadYieldFieldList()" style="margin-top: 12px;">
-                            <i class="fas fa-map-marked-alt"></i> 选择地块
-                        </button>
+                    <div class="message-content ai-content">
+                        <div class="message-bubble">
+                            <p>好的，我来帮您关联地块进行精准预测。</p>
+                            <p>请点击下方按钮选择您的地块：</p>
+                            <button class="btn-primary" onclick="loadYieldFieldList()" style="margin-top: 12px;">
+                                <i class="fas fa-map-marked-alt"></i> 选择地块
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -13717,18 +13732,20 @@ function sendYieldChatMessage() {
         } else {
             // 普通回复
             const aiResponse = `
-                <div class="message ai-message">
-                    <div class="message-avatar">
+                <div class="chat-message ai-message">
+                    <div class="message-avatar ai-avatar">
                         <i class="fas fa-robot"></i>
                     </div>
-                    <div class="message-content">
-                        <p>明白了。基于您的问题，我建议：</p>
-                        <ul>
-                            <li>关注当地的气象条件变化</li>
-                            <li>做好田间管理和病虫害防治</li>
-                            <li>及时关注市场价格走势</li>
-                        </ul>
-                        <p>如需更详细的产量预测，欢迎<span class="link-text" onclick="loadYieldFieldList()">关联地块</span>。</p>
+                    <div class="message-content ai-content">
+                        <div class="message-bubble">
+                            <p>明白了。基于您的问题，我建议：</p>
+                            <ul>
+                                <li>关注当地的气象条件变化</li>
+                                <li>做好田间管理和病虫害防治</li>
+                                <li>及时关注市场价格走势</li>
+                            </ul>
+                            <p>如需更详细的产量预测，欢迎<span class="link-text" onclick="loadYieldFieldList()">关联地块</span>。</p>
+                        </div>
                     </div>
                 </div>
             `;
@@ -13736,7 +13753,8 @@ function sendYieldChatMessage() {
         }
         
         // 滚动到底部
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        const scrollContainer = chatMessages.closest('.chat-messages-container');
+        if (scrollContainer) scrollContainer.scrollTop = scrollContainer.scrollHeight;
     }, 1500);
 }
 
@@ -14320,8 +14338,10 @@ function showYieldExamplesModal() {
         existingModal.remove();
     }
     
-    const phoneContent = document.getElementById('phoneContent');
-    if (!phoneContent) return;
+    // 挂载到 phone-screen，避免被 phone-content 的 overflow 裁剪，确保弹窗完整可点
+    const phoneScreen = document.querySelector('.phone-screen') || document.getElementById('phoneContent');
+    const mount = phoneScreen && phoneScreen.parentElement ? phoneScreen : document.getElementById('phoneContent');
+    if (!mount) return;
     
     // 创建弹窗
     const modal = document.createElement('div');
@@ -14329,7 +14349,7 @@ function showYieldExamplesModal() {
     modal.className = 'examples-modal';
     modal.innerHTML = `
         <div class="modal-overlay" onclick="hideYieldExamplesModal()"></div>
-        <div class="modal-content">
+        <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h3>常见问题示例</h3>
                 <button class="close-btn" onclick="hideYieldExamplesModal()">
@@ -14357,11 +14377,11 @@ function showYieldExamplesModal() {
         </div>
     `;
     
-    phoneContent.appendChild(modal);
+    mount.appendChild(modal);
     
-    // 添加动画效果
+    // 添加动画效果（CSS 使用 .active 类显示弹窗）
     setTimeout(() => {
-        modal.classList.add('show');
+        modal.classList.add('active');
     }, 10);
 }
 
@@ -14369,7 +14389,7 @@ function showYieldExamplesModal() {
 function hideYieldExamplesModal() {
     const modal = document.getElementById('yieldExamplesModal');
     if (modal) {
-        modal.classList.remove('show');
+        modal.classList.remove('active');
         setTimeout(() => {
             modal.remove();
         }, 300);

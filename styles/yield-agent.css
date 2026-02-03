@@ -1,5 +1,348 @@
 /* AI产量预测智能体样式 */
 
+/* ========== 首页样式 ========== */
+.yield-home-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.yield-home-page .mobile-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.yield-home-page .mobile-header h1 {
+    flex: 1;
+    text-align: center;
+    color: white;
+}
+
+.yield-home-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.yield-history-btn {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.yield-history-btn button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #e0e0e0;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.yield-history-btn button:hover {
+    background: #f5f5f5;
+}
+
+.yield-welcome {
+    text-align: center;
+    padding: 10px 0 16px;
+}
+
+.yield-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    color: white;
+    font-size: 32px;
+}
+
+.yield-greeting {
+    color: #333;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    padding: 0 10px;
+}
+
+.yield-examples-btn {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: transparent;
+    padding: 6px 14px;
+    color: #666;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.yield-examples-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+/* 多行输入框（长矩形样式） */
+.yield-input-box {
+    width: 100%;
+    background: white;
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e8e8e8;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.yield-textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    line-height: 1.6;
+    background: transparent;
+    resize: none;
+    min-height: 70px;
+    color: #333;
+    font-family: inherit;
+}
+
+.yield-textarea::placeholder {
+    color: #999;
+}
+
+.yield-input-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.yield-action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #f5f5f5;
+    border: 1px solid #e8e8e8;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 15px;
+}
+
+.yield-action-btn:hover {
+    background: #eee;
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.yield-send-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 15px;
+}
+
+.yield-send-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 快速访问 */
+.yield-quick-access {
+    width: 100%;
+}
+
+.yield-hint {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.yield-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.yield-card {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.yield-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.yield-card i {
+    font-size: 22px;
+    color: #667eea;
+}
+
+.yield-card span {
+    font-size: 12px;
+    color: #333;
+    line-height: 1.3;
+}
+
+/* ========== 对话页样式 ========== */
+.yield-chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+}
+
+.yield-chat-header .back-btn,
+.yield-chat-header .header-menu-btn {
+    flex-shrink: 0;
+    min-width: 36px;
+    width: 36px;
+}
+
+.yield-chat-title {
+    flex: 1;
+    text-align: center;
+    font-size: 17px;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    padding: 0 8px;
+}
+
+/* AI 回复样式（新设计：无嵌套卡片，铺满宽度） */
+.yield-ai-reply {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 0 4px;
+    animation: messageSlideIn 0.3s ease-out;
+}
+
+.yield-reply-avatar {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+}
+
+.yield-reply-content {
+    flex: 1;
+    min-width: 0;
+    background: white;
+    border-radius: 0 16px 16px 16px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.yield-reply-content p {
+    margin: 0 0 14px 0;
+}
+
+.yield-reply-content p:last-child {
+    margin-bottom: 0;
+}
+
+.yield-result-section {
+    margin: 16px 0;
+}
+
+.yield-result-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.yield-result-title i {
+    font-size: 16px;
+}
+
+.yield-result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f8f8f8;
+}
+
+.yield-result-row:last-child {
+    border-bottom: none;
+}
+
+.yield-result-label {
+    color: #666;
+    font-size: 14px;
+}
+
+.yield-result-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.yield-result-value.highlight {
+    color: #667eea;
+    font-size: 16px;
+}
+
+.yield-tip {
+    margin-top: 14px !important;
+    padding-top: 14px;
+    border-top: 1px solid #f0f0f0;
+}
+
 /* 对话页面样式 */
 .yield-chat-page .chat-content {
     display: flex;
@@ -77,14 +420,17 @@
     border-bottom-left-radius: 4px;
 }
 
-/* AI思考中动画 */
-.message-content.typing {
+/* AI思考中动画（兼容 .message-content 与 .message-bubble） */
+.message-content.typing,
+.yield-chat-page .message-bubble.typing {
     display: flex;
     gap: 6px;
     padding: 16px 20px;
+    align-items: center;
 }
 
-.message-content.typing span {
+.message-content.typing span,
+.yield-chat-page .message-bubble.typing span {
     width: 8px;
     height: 8px;
     background: #999;
@@ -92,11 +438,13 @@
     animation: typing 1.4s infinite;
 }
 
-.message-content.typing span:nth-child(2) {
+.message-content.typing span:nth-child(2),
+.yield-chat-page .message-bubble.typing span:nth-child(2) {
     animation-delay: 0.2s;
 }
 
-.message-content.typing span:nth-child(3) {
+.message-content.typing span:nth-child(3),
+.yield-chat-page .message-bubble.typing span:nth-child(3) {
     animation-delay: 0.4s;
 }
 
