@@ -1327,7 +1327,7 @@ const pageData = {
                         <div class="yield-cards">
                             <div class="yield-card" onclick="triggerYieldFieldMode()">
                                 <i class="fas fa-map-marked-alt"></i>
-                                <span>关联地块预测</span>
+                                <span>地块产量AI预测</span>
                             </div>
                             <div class="yield-card" onclick="enterPriceAgent('小麦')">
                                 <i class="fas fa-wheat-awn"></i>
@@ -14370,7 +14370,7 @@ function showYieldExamplesModal() {
                     <div class="example-desc">小麦和玉米哪个产量更高？</div>
                 </div>
                 <div class="example-item" onclick="selectYieldExample('')">
-                    <div class="example-title">🔗 关联地块预测</div>
+                    <div class="example-title">🔗 地块产量AI预测</div>
                     <div class="example-desc">选择我的地块进行精准预测</div>
                 </div>
             </div>
