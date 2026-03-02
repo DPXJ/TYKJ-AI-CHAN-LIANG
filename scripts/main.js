@@ -5094,7 +5094,7 @@ const pageData = {
         content: `
             <div class="mobile-page news-detail-page">
                 <div class="mobile-header">
-                    <button class="back-btn" onclick="goBack()">
+                    <button class="back-btn" onclick="goBackFromNewsDetail()">
                         <i class="fas fa-arrow-left"></i>
                     </button>
                     <h1 class="news-detail-header-title header-title">资讯详情</h1>
@@ -6173,6 +6173,16 @@ function goBack() {
     } else {
         loadPage('home');
     }
+}
+
+// 资讯详情页专用返回：始终回到首页，保持首页样式统一
+function goBackFromNewsDetail() {
+    try {
+        if (window.__pageStack) {
+            window.__pageStack = [];
+        }
+    } catch (e) {}
+    loadPage('home', null, { suppressHistory: true });
 }
 
 // 更新导航状态
