@@ -28,6 +28,163 @@ function setConversationStatus(id, status) {
     if (c) c.status = status;
 }
 
+// 资讯模拟数据（演示用；可与后台 localStorage 联动）
+const NEWS_VERSION = 'v2';
+// 资讯默认封面图（SVG 占位）
+const DEFAULT_NEWS_COVER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="220" height="140" viewBox="0 0 220 140">' +
+    '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#21c08b"/><stop offset="1" stop-color="#0aa06e"/></linearGradient></defs>' +
+    '<rect x="0" y="0" width="220" height="140" rx="16" fill="#f5f5f5"/>' +
+    '<rect x="10" y="10" width="200" height="120" rx="14" fill="url(#g)"/>' +
+    '<circle cx="60" cy="70" r="22" fill="rgba(255,255,255,0.18)"/>' +
+    '<circle cx="140" cy="60" r="16" fill="rgba(255,255,255,0.32)"/>' +
+    '<path d="M46 82 L70 58 L98 86" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<text x="110" y="108" text-anchor="middle" font-size="14" fill="white" font-weight="600">云农谷资讯</text>' +
+    '</svg>'
+);
+// 长图文示例：含 SVG 示意图块、视频占位、多段文字，需翻页阅读
+var NEWS1_LONG_CONTENT =
+    '<p>尊敬的用户：云农谷平台将于本月上线产量预测智能体、小麦/玉米/大豆价格行情等新功能，敬请体验。</p>' +
+    '<p>此次升级，我们在算法能力、数据来源和业务流程三个层面进行了系统优化，力求让一线种植户、农技人员以及管理部门，都能在同一个平台上高效协同、共享信息。</p>' +
+    '<p>以下内容将从整体架构、核心功能和典型应用场景三个方面，向您做一个更加完整的介绍。</p>' +
+    '<div class="news-figure-block"><div class="news-figure-inner"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 140" width="100%" height="auto"><rect width="260" height="140" rx="10" fill="#e8f5e9"/><rect x="22" y="40" width="64" height="70" rx="6" fill="#a5d6a7"/><rect x="98" y="28" width="64" height="82" rx="6" fill="#81c784"/><rect x="174" y="52" width="64" height="58" rx="6" fill="#66bb6a"/><text x="54" y="118" text-anchor="middle" fill="#2e7d32" font-size="11">数据采集</text><text x="130" y="118" text-anchor="middle" fill="#2e7d32" font-size="11">AI建模</text><text x="206" y="118" text-anchor="middle" fill="#2e7d32" font-size="11">决策服务</text><text x="130" y="24" text-anchor="middle" fill="#1b5e20" font-size="13" font-weight="600">云农谷平台整体架构示意</text></svg></div></div>' +
+    '<p><strong>一、产量预测智能体：从“经验判断”走向“数据决策”</strong></p>' +
+    '<p>传统意义上，许多种植大户主要依靠多年的种田经验来判断产量高低，这种方式在气候平稳、种植结构相对简单的情况下尚能发挥作用，但在极端天气增多、品种不断更新的背景下，单纯依赖经验往往容易“失手”。</p>' +
+    '<p>产量预测智能体会综合考虑播期、品种、密度、施肥和用水等基础信息，再结合实时气象数据和历史同类地块的产量表现，通过机器学习模型给出一个更为客观的产量区间，并对关键影响因素进行拆解，让您清楚地知道“为什么是这个结果”。</p>' +
+    '<p>在应用层面，您可以在地块建档时补充必要参数，系统会自动生成分阶段的预测曲线。当气象预报出现明显异常时，智能体也会给出相应的风险提示，帮助您及时调整管理措施。</p>' +
+    '<p><strong>二、价格行情能力：把握卖粮“时间差”和“空间差”</strong></p>' +
+    '<p>针对小麦、玉米、大豆等主要作物，我们接入了多渠道的市场价格信息，并对价格走势进行清洗、聚合和可视化展示。您可以按省、市乃至重点交割库查看当前价格区间和近阶段涨跌趋势。</p>' +
+    '<p>对于一些暂时不着急出售粮食的种植户，价格智能体可以根据历史季节性规律和当前库存压力，给出几种不同销售节奏下的收益对比，帮助您在“立即出售、分批出售和择机集中出售”之间做出更理性的选择。</p>' +
+    '<p>未来，我们还计划叠加运费、仓储以及金融成本等因素，为有条件的用户提供更加精细的“到手收益”测算服务。</p>' +
+    '<p><strong>三、农事日历与田间工作站：把复杂工作拆解成可执行任务</strong></p>' +
+    '<p>在日常生产中，真正困扰很多种植户的往往不是“某一次操作怎么做”，而是“全年这么多环节，容易漏、容易乱”。农事日历模块正是为了解决这一痛点。</p>' +
+    '<p>系统会根据不同作物、品种和地区气候特点，生成一份可参考的标准农事时间表，并和产量预测、价格行情以及灾害预警等能力打通。当某个关键节点临近时，您会在工作台中看到清晰的待办提醒，与田间工作站中的任务列表自动联动。</p>' +
+    '<p>田间工作站则更像是一个“数字化的现场指挥中心”，不仅可以查看每块地当前的生长状态、设备在线情况和任务完成进度，还支持上传照片、录入备注，方便多人协同和事后复盘。</p>' +
+    '<div class="news-video-placeholder"><div class="news-video-inner"><i class="fas fa-play-circle"></i><span>云农谷平台功能讲解视频（示意）</span></div></div>' +
+    '<p><strong>四、面向不同角色的多端协同</strong></p>' +
+    '<p>对于一线种植户，移动端小程序提供了尽量简单直观的操作界面，只保留与日常决策高度相关的入口；对于农技推广人员和合作社管理者，后台端则提供更丰富的统计报表和批量管理能力。</p>' +
+    '<p>我们希望通过这种分层设计，让不同角色都能在自己熟悉的终端上完成主要工作，同时又能够在同一套数据底座上协同，避免信息割裂和重复录入。</p>' +
+    '<p><strong>五、持续迭代与共建机制</strong></p>' +
+    '<p>本次发布只是一个阶段性节点，后续我们还会根据各地试点反馈迭代算法参数、补充区域性品种模型，并逐步开放更多接口，欢迎农业服务组织和科研单位参与共建。</p>' +
+    '<p>欢迎您在使用过程中，通过「我的」-「帮助与反馈」向我们提交意见和建议，也可以在服务群内直接与产品团队交流。每一条来自一线的声音，都会成为云农谷持续优化的方向。</p>' +
+    '<p>再次感谢您对云农谷平台的关注与支持，祝新一季丰收在望！</p>' +
+    '<p>云农谷团队<br/>2026年3月</p>';
+
+// 小麦春管长图文示例：约 1500 字，含要点列表、示意图与视频占位
+var NEWS2_LONG_CONTENT = ''
+    + '<p>当前小麦处于返青至拔节期，是全年管理的关键窗口期之一。此阶段气温回升较快，群体与单株生长速度明显加快，如果水肥调控不到位，既容易造成旺长倒伏，又可能因营养不足影响后期穗粒数和千粒重。</p>'
+    + '<p>结合近期气象预报与各地田间巡查情况，我们给出一套更完整的小麦春管技术要点，供广大种植户和农技人员参考。您可以结合本地土壤、品种和种植密度进行灵活调整。</p>'
+    + '<div class="news-figure-block"><div class="news-figure-inner">'
+    + '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 140" width="100%" height="auto">'
+    + '<rect x="0" y="0" width="260" height="140" rx="10" fill="#e3f2fd" />'
+    + '<rect x="18" y="30" width="70" height="80" rx="8" fill="#bbdefb" />'
+    + '<rect x="95" y="20" width="70" height="90" rx="8" fill="#90caf9" />'
+    + '<rect x="172" y="40" width="70" height="70" rx="8" fill="#64b5f6" />'
+    + '<text x="53" y="115" text-anchor="middle" fill="#1565c0" font-size="11">水分</text>'
+    + '<text x="130" y="115" text-anchor="middle" fill="#1565c0" font-size="11">养分</text>'
+    + '<text x="207" y="115" text-anchor="middle" fill="#1565c0" font-size="11">群体</text>'
+    + '<text x="130" y="20" text-anchor="middle" fill="#0d47a1" font-size="13" font-weight="600">小麦春管三要素示意</text>'
+    + '</svg>'
+    + '</div></div>'
+    + '<p><strong>一、适时浇返青水，稳住群体</strong></p>'
+    + '<p>1. 返青水一般宜在土壤解冻 10～15 厘米、麦苗开始由黄转绿时浇灌，既能补充冬季消耗的水分，又能促进根系下扎和分蘖成穗。</p>'
+    + '<p>2. 对于墒情较好的地块，可适当推迟或减少浇水次数，避免田间过湿导致根系缺氧和病害发生；对于冬前播种偏晚或出苗不齐的地块，则应适当提早浇水，促进弱苗转壮。</p>'
+    + '<p>3. 在易发生倒春寒的区域，建议在冷空气到来前 3～5 天完成灌溉，既可增强土壤保温能力，又有利于缓冲温度骤降带来的风险。</p>'
+    + '<p><strong>二、分类追肥，突出弱苗促壮与旺苗控长</strong></p>'
+    + '<p>1. 对于群体偏小、叶色发黄的弱苗田，可在返青水或拔节水中一次性补足氮肥，同时配合少量磷钾肥和微量元素，促进分蘖成穗，提高穗数。</p>'
+    + '<p>2. 对于群体适中、叶色正常的地块，可采取“前轻后重”的策略，返青期以保叶色和根系为主，拔节期再加大追肥力度，兼顾穗粒数与粒重形成。</p>'
+    + '<p>3. 对于群体偏大、叶色过深的旺长田，要控制氮肥用量，可配合喷施调节剂，抑制无效分蘖，降低后期倒伏风险。</p>'
+    + '<p><strong>三、强化病虫草害监测与综合防治</strong></p>'
+    + '<p>1. 返青期重点关注纹枯病、根腐病等根部病害，可通过拔取样株观察根系和茎基部颜色，发现病株要及早采取药剂拌种或浇灌措施。</p>'
+    + '<p>2. 拔节至孕穗期，要加强对条锈病、叶锈病和白粉病的田间巡查，一旦发现中心病株或零星病斑，应立即开展区域联防联治，避免大面积扩散。</p>'
+    + '<p>3. 同时注意蚜虫、小麦粘虫等害虫的发生，多利用性诱剂、黄板等绿色防控手段，必要时选用高效低毒药剂，做到“早发现、早预警、早处置”。</p>'
+    + '<div class="news-video-placeholder"><div class="news-video-inner"><i class="fas fa-play-circle"></i><span>小麦春管现场示范视频（示意）</span></div></div>'
+    + '<p><strong>四、结合天气变化灵活调整农事安排</strong></p>'
+    + '<p>1. 在连阴雨或强冷空气来临前，尽量提前完成追肥和浇水作业，避免湿田作业造成土壤板结和机械陷车。</p>'
+    + '<p>2. 在大风天气，要特别注意喷药安全，合理选择喷头和雾滴大小，减少飘移，同时做好个人防护。</p>'
+    + '<p>3. 建议充分利用云农谷平台的气象预报和灾害预警服务，关注 3～7 天滚动预报，将施肥、浇水、病虫防治等关键操作安排在相对适宜的时间窗口内。</p>'
+    + '<p><strong>五、利用数字化工具记录与复盘管理效果</strong></p>'
+    + '<p>1. 建议在「田间工作站」中为不同地块建立档案，记录浇水时间、肥料用量、药剂品种和用量等关键数据，便于后期对比分析。</p>'
+    + '<p>2. 通过拍照上传和文字备注的方式，形成图文并茂的田间管理日志，为下一季的小麦种植提供直接的经验参考。</p>'
+    + '<p>3. 后续还可以结合产量预测智能体，对不同管理策略下的单产变化进行量化评估，逐步形成适合本地区、本品种的标准化春管模式。</p>'
+    + '<p>总的来说，小麦春管不是单一措施，而是“水分、养分、群体结构和病虫草害防控”的综合调控过程。只要把握住返青至拔节这一关键时期，因地制宜、分区分类管理，就能够为后期抽穗灌浆和稳产增收打下坚实基础。</p>';
+
+const MOCK_NEWS_LIST = [
+    {
+        id: 'news1',
+        title: '云农谷平台三月新功能上线公告',
+        cover: '',
+        summary: '产量预测、价格行情等能力全面升级',
+        content: NEWS1_LONG_CONTENT,
+        publishTime: '2026-03-01 10:00',
+        status: 'published',
+        readCount: 128
+    },
+    {
+        id: 'news2',
+        title: '小麦春管关键期农事建议',
+        cover: '',
+        summary: '针对当前苗情与天气的田间管理要点',
+        content: NEWS2_LONG_CONTENT,
+        publishTime: '2026-02-28 14:30',
+        status: 'published',
+        readCount: 96
+    },
+    {
+        id: 'news3',
+        title: '气象灾害预警功能使用说明',
+        cover: '',
+        summary: '如何在小程序内查看与订阅预警',
+        content: '<p>云农谷已接入气象灾害预警服务，您可在首页点击气象横幅或从 AI 入口进入「气象灾害预警」智能体。</p><p>支持按地区订阅、查看未来七天天气与农事适宜度建议。</p>',
+        publishTime: '2026-02-27 09:15',
+        status: 'published',
+        readCount: 80
+    },
+    {
+        id: 'news4',
+        title: '数字大田与农事方案库更新',
+        cover: '',
+        summary: '农事方案库新增多类作物模板',
+        content: '<p>农事方案库已更新小麦、玉米、大豆等作物的标准方案模板，支持一键套用与自定义编辑，与种植计划、农事日历联动。</p>',
+        publishTime: '2026-02-25 16:00',
+        status: 'published',
+        readCount: 64
+    },
+    {
+        id: 'news5',
+        title: '平台服务协议与隐私政策更新',
+        cover: '',
+        summary: '请知悉最新用户协议与隐私条款',
+        content: '<p>我们更新了《云农谷用户服务协议》与《隐私政策》，涉及数据使用与授权说明，请于「我的」-「设置」中查阅。</p>',
+        publishTime: '2026-02-20 11:00',
+        status: 'published',
+        readCount: 51
+    }
+];
+function getNewsList() {
+    try {
+        const storageVersion = localStorage.getItem('yunng_news_version');
+        const raw = localStorage.getItem('yunng_news_list');
+        if (raw && storageVersion === NEWS_VERSION) {
+            const list = JSON.parse(raw);
+            if (Array.isArray(list) && list.length > 0) return list;
+        }
+    } catch (e) {}
+    // 本地无有效数据或版本不一致时，回落到内置长图文示例
+    try {
+        localStorage.setItem('yunng_news_version', NEWS_VERSION);
+        localStorage.setItem('yunng_news_list', JSON.stringify(MOCK_NEWS_LIST));
+    } catch (e) {}
+    return MOCK_NEWS_LIST.slice();
+}
+
+function setNewsList(list) {
+    try {
+        localStorage.setItem('yunng_news_version', NEWS_VERSION);
+        localStorage.setItem('yunng_news_list', JSON.stringify(list));
+    } catch (e) {}
+}
+
 // 页面数据
 const pageData = {
     home: {
@@ -52,6 +209,17 @@ const pageData = {
                             <div class="banner-arrow">
                                 <i class="fas fa-chevron-right"></i>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 云农谷资讯 -->
+                    <div class="card news-block">
+                        <div class="news-block-header">
+                            <span class="news-block-title">云农谷资讯</span>
+                            <a class="news-block-more" href="javascript:void(0)" onclick="loadPage('newsList')">更多 <i class="fas fa-chevron-right"></i></a>
+                        </div>
+                        <div class="news-block-list" id="homeNewsBlockList">
+                            <!-- 最新 3 条由 JS 填充 -->
                         </div>
                     </div>
                     
@@ -4890,6 +5058,52 @@ const pageData = {
                 </div>
             </div>
         `
+    },
+
+    newsList: {
+        title: '资讯',
+        subtitle: '云农谷资讯',
+        content: `
+            <div class="mobile-page news-list-page">
+                <div class="mobile-header">
+                    <button class="back-btn" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1 class="header-title">资讯</h1>
+                </div>
+                <div class="mobile-content">
+                    <div class="news-list-container" id="newsListContainer">
+                        <!-- 列表由 JS 渲染 -->
+                    </div>
+                    <div class="news-load-more" id="newsLoadMore" onclick="loadMoreNews()">
+                        <span>加载更多</span>
+                    </div>
+                </div>
+            </div>
+        `
+    },
+
+    newsDetail: {
+        title: '资讯详情',
+        subtitle: '云农谷资讯',
+        content: `
+            <div class="mobile-page news-detail-page">
+                <div class="mobile-header">
+                    <button class="back-btn" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1 class="news-detail-header-title header-title">资讯详情</h1>
+                </div>
+                <div class="mobile-content news-detail-content">
+                    <div class="news-detail-title" id="newsDetailTitle">--</div>
+                    <div class="news-detail-time" id="newsDetailTime">--</div>
+                    <div class="news-detail-body" id="newsDetailBody"><!-- 正文由 JS 填充 --></div>
+                </div>
+                <button class="news-share-float" onclick="shareNewsToTimeline()" title="分享">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+            </div>
+        `
     }
 };
 let currentPage = 'home';
@@ -5796,13 +6010,24 @@ function loadPage(pageName, param) {
         // 滚动到顶部
         phoneContent.scrollTop = 0;
         
-        // 如果是首页，初始化AI诊断功能和气象预警banner
+        // 如果是首页，初始化AI诊断功能和气象预警banner、资讯块
         if (pageName === 'home') {
             setTimeout(() => {
                 console.log('Initializing inline AI diagnosis features...');
                 setupInlineAIDiagnosis();
                 initWeatherAlertBanner();
+                renderHomeNewsBlock();
             }, 100);
+        }
+        
+        // 资讯列表页：渲染列表
+        if (pageName === 'newsList') {
+            setTimeout(() => initNewsListPage(), 50);
+        }
+        
+        // 资讯详情页：根据 param(id) 渲染
+        if (pageName === 'newsDetail' && param) {
+            setTimeout(() => renderNewsDetail(param), 50);
         }
         
         // 如果是报告页面，初始化报告内容
@@ -5903,6 +6128,7 @@ function ensureTabbar(pageName) {
         const tabKey = (function(name) {
             if (name === 'fieldWorkstation') return 'workbench';
             if (name === 'workbench') return 'workbench';
+            if (name === 'newsList' || name === 'newsDetail') return 'home';
             // 新AI三段式页面在全局tabbar上归为 AI
             if (['agentMarket','aiChatCenter','mySubscriptions','aiNewChat','expertRecommend','historyDialog','aiDiagnosis','wheatPriceAgent','cornPriceAgent','soyPriceAgent'].includes(name)) return 'ai';
             return name;
@@ -5964,6 +6190,152 @@ function showComingSoon(featureName) {
         showNotification('与现有功能保持一致', 'info');
     } else {
         showNotification(`${featureName}功能即将推出，敬请期待！`, 'info');
+    }
+}
+
+// ===== 资讯模块（演示原型） =====
+function renderHomeNewsBlock() {
+    const container = document.getElementById('homeNewsBlockList');
+    if (!container) return;
+    const list = getNewsList().filter(function(n) { return n.status === 'published'; }).slice(0, 3);
+    container.innerHTML = list.map(function(n) {
+        return '<div class="news-block-item" onclick="loadPage(\'newsDetail\', \'' + n.id + '\')">' +
+            '<span class="news-block-item-title">' + (n.title || '').replace(/</g, '&lt;') + '</span>' +
+            '<i class="fas fa-chevron-right news-block-item-arrow"></i></div>';
+    }).join('') || '<div class="news-block-empty">暂无资讯</div>';
+}
+
+var _newsListPageSize = 5;
+var _newsListOffset = 0;
+
+function getNewsCover(n) {
+    try {
+        var c = n && n.cover ? String(n.cover).trim() : '';
+        return c || DEFAULT_NEWS_COVER;
+    } catch (e) {
+        return DEFAULT_NEWS_COVER;
+    }
+}
+
+function isNewsNew(n) {
+    if (!n || !n.publishTime) return false;
+    try {
+        var dateStr = String(n.publishTime).split(' ')[0];
+        var d = new Date(dateStr.replace(/\./g, '-'));
+        if (isNaN(d.getTime())) return false;
+        var diff = Date.now() - d.getTime();
+        var sevenDays = 7 * 24 * 60 * 60 * 1000;
+        return diff >= 0 && diff <= sevenDays;
+    } catch (e) {
+        return false;
+    }
+}
+
+function initNewsListPage() {
+    _newsListOffset = 0;
+    var list = getNewsList().filter(function(n) { return n.status === 'published'; });
+    var container = document.getElementById('newsListContainer');
+    var loadMoreEl = document.getElementById('newsLoadMore');
+    if (!container) return;
+    function render(append) {
+        var start = append ? _newsListOffset : 0;
+        var end = Math.min(start + _newsListPageSize, list.length);
+        var slice = list.slice(start, end);
+        var html = slice.map(function(n) {
+            var reads = typeof n.readCount === 'number' ? n.readCount : 0;
+            var cover = getNewsCover(n);
+            var isNewFlag = isNewsNew(n);
+            return '' +
+                '<div class="news-list-item" onclick="loadPage(\'newsDetail\', \'' + n.id + '\')">' +
+                    '<div class="news-list-thumb-wrapper">' +
+                        '<img class="news-list-thumb" src="' + cover.replace(/"/g, '&quot;') + '" alt="封面图" />' +
+                        (isNewFlag ? '<span class="news-list-badge">NEW</span>' : '') +
+                    '</div>' +
+                    '<div class="news-list-main">' +
+                        '<div class="news-list-item-title">' + (n.title || '').replace(/</g, '&lt;') + '</div>' +
+                        '<div class="news-list-item-time">' + (n.publishTime || '').replace(/</g, '&lt;') +
+                        ' · 阅读 ' + reads + '</div>' +
+                    '</div>' +
+                '</div>';
+        }).join('');
+        if (append) container.insertAdjacentHTML('beforeend', html); else container.innerHTML = html;
+        _newsListOffset = end;
+        if (loadMoreEl) loadMoreEl.style.display = end >= list.length ? 'none' : 'block';
+    }
+    render(false);
+}
+
+function loadMoreNews() {
+    var list = getNewsList().filter(function(n) { return n.status === 'published'; });
+    if (_newsListOffset >= list.length) {
+        if (typeof showNotification === 'function') showNotification('没有更多了', 'info');
+        return;
+    }
+    var container = document.getElementById('newsListContainer');
+    var loadMoreEl = document.getElementById('newsLoadMore');
+    if (!container) return;
+    var start = _newsListOffset;
+    var end = Math.min(start + _newsListPageSize, list.length);
+    var slice = list.slice(start, end);
+    var html = slice.map(function(n) {
+        var reads = typeof n.readCount === 'number' ? n.readCount : 0;
+        var cover = getNewsCover(n);
+        var isNewFlag = isNewsNew(n);
+        return '' +
+            '<div class="news-list-item" onclick="loadPage(\'newsDetail\', \'' + n.id + '\')">' +
+                '<div class="news-list-thumb-wrapper">' +
+                    '<img class="news-list-thumb" src="' + cover.replace(/"/g, '&quot;') + '" alt="封面图" />' +
+                    (isNewFlag ? '<span class="news-list-badge">NEW</span>' : '') +
+                '</div>' +
+                '<div class="news-list-main">' +
+                    '<div class="news-list-item-title">' + (n.title || '').replace(/</g, '&lt;') + '</div>' +
+                    '<div class="news-list-item-time">' + (n.publishTime || '').replace(/</g, '&lt;') +
+                    ' · 阅读 ' + reads + '</div>' +
+                '</div>' +
+            '</div>';
+    }).join('');
+    container.insertAdjacentHTML('beforeend', html);
+    _newsListOffset = end;
+    if (loadMoreEl) loadMoreEl.style.display = end >= list.length ? 'none' : 'block';
+    if (end >= list.length && typeof showNotification === 'function') showNotification('没有更多了', 'info');
+}
+
+function renderNewsDetail(id) {
+    var list = getNewsList();
+    var index = list.findIndex(function(n) { return n.id === id; });
+    var item = index >= 0 ? list[index] : null;
+    var titleEl = document.getElementById('newsDetailTitle');
+    var timeEl = document.getElementById('newsDetailTime');
+    var bodyEl = document.getElementById('newsDetailBody');
+    if (!item) {
+        if (titleEl) titleEl.textContent = '未找到该资讯';
+        if (timeEl) timeEl.textContent = '';
+        if (bodyEl) bodyEl.innerHTML = '<p>内容不存在或已下架。</p>';
+        return;
+    }
+    // 增加阅读量并保存
+    var reads = typeof item.readCount === 'number' ? item.readCount : 0;
+    item.readCount = reads + 1;
+    if (index >= 0) {
+        list[index] = item;
+        setNewsList(list);
+    }
+
+    if (titleEl) titleEl.textContent = item.title || '--';
+    if (timeEl) {
+        var timeText = item.publishTime || '--';
+        timeEl.textContent = timeText + ' · 阅读 ' + item.readCount;
+    }
+    if (bodyEl) bodyEl.innerHTML = item.content || '<p>暂无正文</p>';
+}
+
+function shareNewsToTimeline() {
+    if (typeof showShareOptions === 'function') {
+        showShareOptions();
+    } else if (typeof showNotification === 'function') {
+        showNotification('分享功能演示中', 'info');
+    } else {
+        alert('分享功能演示中');
     }
 }
 

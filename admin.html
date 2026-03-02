@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云农谷后台 - 资讯管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; min-height: 100vh; }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: 220px; background: #001529; color: #fff; padding: 20px 0; }
+        .admin-sidebar h2 { padding: 0 20px 20px; font-size: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px; }
+        .admin-nav-item { display: block; padding: 12px 20px; color: rgba(255,255,255,0.85); text-decoration: none; cursor: pointer; transition: background 0.2s; }
+        .admin-nav-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .admin-nav-item.active { background: #1890ff; color: #fff; }
+        .admin-nav-item i { margin-right: 10px; width: 18px; }
+        .admin-main { flex: 1; padding: 24px; overflow: auto; }
+        .admin-header { margin-bottom: 24px; font-size: 20px; font-weight: 600; color: #333; }
+        .admin-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 16px; }
+        .admin-table { width: 100%; border-collapse: collapse; }
+        .admin-table th, .admin-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+        .admin-table th { background: #fafafa; font-weight: 600; color: #333; }
+        .admin-table .ops { white-space: nowrap; }
+        .admin-table .ops button { margin-right: 8px; padding: 4px 12px; border-radius: 4px; border: 1px solid #d9d9d9; background: #fff; cursor: pointer; font-size: 13px; }
+        .admin-table .ops button:hover { border-color: #1890ff; color: #1890ff; }
+        .admin-table .ops button.danger:hover { border-color: #ff4d4f; color: #ff4d4f; }
+        .status-published { color: #52c41a; }
+        .status-draft { color: #faad14; }
+        .btn-primary { padding: 8px 20px; background: #1890ff; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-primary:hover { background: #40a9ff; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: #333; }
+        .form-group input[type="text"], .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 14px; }
+        .form-actions { margin-top: 24px; display: flex; gap: 12px; }
+        .form-actions button { padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .form-actions .btn-draft { background: #fff; border: 1px solid #d9d9d9; color: #666; }
+        .form-actions .btn-draft:hover { border-color: #1890ff; color: #1890ff; }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+        .empty-tip { color: #999; text-align: center; padding: 40px 20px; }
+        .editor-toolbar { border: 1px solid #d9d9d9; border-bottom: none; border-radius: 4px 4px 0 0; padding: 6px 8px; background: #fafafa; display: flex; gap: 6px; }
+        .editor-toolbar button { border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; padding: 4px 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .editor-toolbar button:hover { border-color: #1890ff; color: #1890ff; }
+        .rich-editor { border: 1px solid #d9d9d9; border-radius: 0 0 4px 4px; min-height: 160px; padding: 8px 12px; background: #fff; overflow-y: auto; }
+        .rich-editor:focus { outline: none; border-color: #1890ff; box-shadow: 0 0 0 1px rgba(24,144,255,0.2); }
+        .rich-editor p { margin-bottom: 8px; }
+        .rich-editor img { max-width: 100%; border-radius: 6px; margin: 8px 0; display: block; }
+        /* 编辑器内视频占位样式（与前台资讯详情风格接近的简化版） */
+        .rich-editor .news-video-placeholder {
+            margin: 16px 0;
+            border-radius: 6px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .rich-editor .news-video-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255,255,255,0.9);
+            font-size: 13px;
+        }
+        .rich-editor .news-video-inner i {
+            font-size: 40px;
+            color: #21c08b;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <h2><i class="fas fa-leaf"></i> 云农谷后台</h2>
+            <a class="admin-nav-item" data-page="list"><i class="fas fa-list"></i> 资讯管理</a>
+            <a class="admin-nav-item" data-page="publish"><i class="fas fa-edit"></i> 发布资讯</a>
+        </aside>
+        <main class="admin-main">
+            <div class="admin-header">资讯管理</div>
+
+            <section id="section-list" class="page-section active admin-card">
+                <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+                    <span>资讯列表（演示数据，可与小程序端联动）</span>
+                    <button class="btn-primary" onclick="showPage('publish')"><i class="fas fa-plus"></i> 发布资讯</button>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr><th>标题</th><th>发布时间</th><th>状态</th><th>操作</th></tr>
+                    </thead>
+                    <tbody id="adminNewsTbody"></tbody>
+                </table>
+                <div id="adminListEmpty" class="empty-tip" style="display:none;">暂无资讯，请点击「发布资讯」添加</div>
+            </section>
+
+            <section id="section-publish" class="page-section admin-card">
+                <div class="admin-header" style="margin-bottom:20px;">发布资讯</div>
+                <form id="adminNewsForm" onsubmit="return submitNews(event)">
+                    <div class="form-group">
+                        <label>标题</label>
+                        <input type="text" id="newsTitle" placeholder="请输入资讯标题" required>
+                    </div>
+                    <div class="form-group">
+                        <label>封面图（演示可留空或输入图片 URL）</label>
+                        <input type="text" id="newsCover" placeholder="可选">
+                    </div>
+                    <div class="form-group">
+                        <label>摘要</label>
+                        <input type="text" id="newsSummary" placeholder="简短摘要">
+                    </div>
+                    <div class="form-group">
+                        <label>正文（富文本，支持图片 / 视频占位插入）</label>
+                        <div class="editor-toolbar">
+                            <button type="button" onclick="editorCommand('bold')"><i class="fas fa-bold"></i>加粗</button>
+                            <button type="button" onclick="editorCommand('insertUnorderedList')"><i class="fas fa-list-ul"></i>列表</button>
+                            <button type="button" onclick="insertEditorImage()"><i class="fas fa-image"></i>插入图片</button>
+                            <button type="button" onclick="insertEditorVideo()"><i class="fas fa-play-circle"></i>插入视频</button>
+                        </div>
+                        <div id="newsContent" class="rich-editor" contenteditable="true"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">发布</button>
+                        <button type="button" class="btn-draft" onclick="saveDraft()">存草稿</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+    <script>
+        var STORAGE_KEY = 'yunng_news_list';
+        var DEFAULT_LIST = [
+            { id: 'news1', title: '云农谷平台三月新功能上线公告', cover: '', summary: '产量预测、价格行情等能力全面升级', content: '<p>尊敬的用户：云农谷平台将于本月上线产量预测智能体、小麦/玉米/大豆价格行情等新功能，敬请体验。</p>', publishTime: '2026-03-01 10:00', status: 'published', readCount: 128 },
+            { id: 'news2', title: '小麦春管关键期农事建议', cover: '', summary: '针对当前苗情与天气的田间管理要点', content: '<p>当前小麦处于返青至拔节期，建议关注墒情与病虫害。</p>', publishTime: '2026-02-28 14:30', status: 'published', readCount: 96 },
+            { id: 'news3', title: '气象灾害预警功能使用说明', cover: '', summary: '如何在小程序内查看与订阅预警', content: '<p>云农谷已接入气象灾害预警服务。</p>', publishTime: '2026-02-27 09:15', status: 'published', readCount: 80 }
+        ];
+
+        function getList() {
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    var list = JSON.parse(raw);
+                    if (Array.isArray(list) && list.length > 0) return list;
+                }
+            } catch (e) {}
+            return DEFAULT_LIST.slice();
+        }
+
+        function setList(list) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        }
+
+        function showPage(page) {
+            document.querySelectorAll('.page-section').forEach(function(el) { el.classList.remove('active'); });
+            document.querySelectorAll('.admin-nav-item').forEach(function(el) { el.classList.remove('active'); });
+            var section = document.getElementById('section-' + page);
+            var nav = document.querySelector('.admin-nav-item[data-page="' + page + '"]');
+            if (section) section.classList.add('active');
+            if (nav) nav.classList.add('active');
+            if (page === 'list') renderList();
+        }
+
+        function renderList() {
+            var list = getList();
+            var tbody = document.getElementById('adminNewsTbody');
+            var empty = document.getElementById('adminListEmpty');
+            if (!tbody) return;
+            if (list.length === 0) {
+                tbody.innerHTML = '';
+                if (empty) empty.style.display = 'block';
+                return;
+            }
+            if (empty) empty.style.display = 'none';
+            tbody.innerHTML = list.map(function(n) {
+                var statusClass = n.status === 'published' ? 'status-published' : 'status-draft';
+                var statusText = n.status === 'published' ? '已发布' : '草稿';
+                return '<tr><td>' + escapeHtml(n.title) + '</td><td>' + escapeHtml(n.publishTime || '') + '</td><td><span class="' + statusClass + '">' + statusText + '</span></td><td class="ops"><button type="button" onclick="deleteNews(\'' + n.id + '\')">删除</button></td></tr>';
+            }).join('');
+        }
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            var div = document.createElement('div');
+            div.textContent = s;
+            return div.innerHTML;
+        }
+
+        function deleteNews(id) {
+            if (!confirm('确定删除这条资讯吗？（演示）')) return;
+            var list = getList().filter(function(n) { return n.id !== id; });
+            setList(list);
+            renderList();
+            alert('已删除（演示）');
+        }
+
+        function getEditorHtml() {
+            var editor = document.getElementById('newsContent');
+            return editor ? editor.innerHTML.trim() : '';
+        }
+
+        function clearEditor() {
+            var editor = document.getElementById('newsContent');
+            if (editor) editor.innerHTML = '';
+        }
+
+        function editorCommand(cmd) {
+            try {
+                document.execCommand(cmd, false, null);
+            } catch (e) {}
+        }
+
+        function insertEditorImage() {
+            var url = prompt('请输入图片 URL');
+            if (!url) return;
+            try {
+                document.execCommand('insertImage', false, url);
+            } catch (e) {
+                var editor = document.getElementById('newsContent');
+                if (editor) {
+                    editor.innerHTML += '<p><img src="' + url + '" alt="图片" /></p>';
+                }
+            }
+        }
+
+        function insertEditorVideo() {
+            var desc = prompt('请输入视频说明（如：示例演示视频）');
+            if (desc === null) return;
+            desc = desc.trim() || '示例视频';
+            var editor = document.getElementById('newsContent');
+            if (!editor) return;
+            var html = '<div class="news-video-placeholder"><div class="news-video-inner"><i class="fas fa-play-circle"></i><span>'
+                + desc.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                + '</span></div></div>';
+            editor.innerHTML += html;
+        }
+
+        function submitNews(e) {
+            e.preventDefault();
+            var title = document.getElementById('newsTitle').value.trim();
+            var cover = document.getElementById('newsCover').value.trim();
+            var summary = document.getElementById('newsSummary').value.trim();
+            var content = getEditorHtml();
+            if (!title) { alert('请填写标题'); return false; }
+            var list = getList();
+            var now = new Date();
+            var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+            var id = 'news' + Date.now();
+            list.unshift({ id: id, title: title, cover: cover, summary: summary, content: content || '', publishTime: timeStr, status: 'published', readCount: 0 });
+            setList(list);
+            document.getElementById('adminNewsForm').reset();
+            clearEditor();
+            alert('发布成功（演示）。刷新小程序首页可看到最新资讯。');
+            showPage('list');
+            return false;
+        }
+
+        function saveDraft() {
+            var title = document.getElementById('newsTitle').value.trim();
+            if (!title) { alert('请至少填写标题'); return; }
+            var list = getList();
+            var id = 'news' + Date.now();
+            var now = new Date();
+            var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+            list.unshift({ id: id, title: title, cover: document.getElementById('newsCover').value.trim(), summary: document.getElementById('newsSummary').value.trim(), content: getEditorHtml(), publishTime: timeStr, status: 'draft', readCount: 0 });
+            setList(list);
+            document.getElementById('adminNewsForm').reset();
+            clearEditor();
+            alert('已存为草稿（演示）');
+            showPage('list');
+        }
+
+        document.querySelectorAll('.admin-nav-item').forEach(function(el) {
+            el.addEventListener('click', function() { showPage(this.getAttribute('data-page')); });
+        });
+        renderList();
+    </script>
+</body>
+</html>
