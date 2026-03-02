@@ -118,7 +118,8 @@ const MOCK_NEWS_LIST = [
         content: NEWS1_LONG_CONTENT,
         publishTime: '2026-03-01 10:00',
         status: 'published',
-        readCount: 128
+        readCount: 128,
+        shareCount: 18
     },
     {
         id: 'news2',
@@ -128,7 +129,8 @@ const MOCK_NEWS_LIST = [
         content: NEWS2_LONG_CONTENT,
         publishTime: '2026-02-28 14:30',
         status: 'published',
-        readCount: 96
+        readCount: 96,
+        shareCount: 9
     },
     {
         id: 'news3',
@@ -138,7 +140,8 @@ const MOCK_NEWS_LIST = [
         content: '<p>云农谷已接入气象灾害预警服务，您可在首页点击气象横幅或从 AI 入口进入「气象灾害预警」智能体。</p><p>支持按地区订阅、查看未来七天天气与农事适宜度建议。</p>',
         publishTime: '2026-02-27 09:15',
         status: 'published',
-        readCount: 80
+        readCount: 80,
+        shareCount: 6
     },
     {
         id: 'news4',
@@ -148,7 +151,8 @@ const MOCK_NEWS_LIST = [
         content: '<p>农事方案库已更新小麦、玉米、大豆等作物的标准方案模板，支持一键套用与自定义编辑，与种植计划、农事日历联动。</p>',
         publishTime: '2026-02-25 16:00',
         status: 'published',
-        readCount: 64
+        readCount: 64,
+        shareCount: 3
     },
     {
         id: 'news5',
@@ -158,7 +162,8 @@ const MOCK_NEWS_LIST = [
         content: '<p>我们更新了《云农谷用户服务协议》与《隐私政策》，涉及数据使用与授权说明，请于「我的」-「设置」中查阅。</p>',
         publishTime: '2026-02-20 11:00',
         status: 'published',
-        readCount: 51
+        readCount: 51,
+        shareCount: 1
     }
 ];
 function getNewsList() {
@@ -6197,11 +6202,19 @@ function showComingSoon(featureName) {
 function renderHomeNewsBlock() {
     const container = document.getElementById('homeNewsBlockList');
     if (!container) return;
-    const list = getNewsList().filter(function(n) { return n.status === 'published'; }).slice(0, 3);
+    const list = getNewsList().filter(function(n) { return n.status === 'published'; }).slice(0, 2);
     container.innerHTML = list.map(function(n) {
-        return '<div class="news-block-item" onclick="loadPage(\'newsDetail\', \'' + n.id + '\')">' +
-            '<span class="news-block-item-title">' + (n.title || '').replace(/</g, '&lt;') + '</span>' +
-            '<i class="fas fa-chevron-right news-block-item-arrow"></i></div>';
+        var isNewFlag = isNewsNew(n);
+        var time = (n.publishTime || '').replace(/</g, '&lt;');
+        return '' +
+            '<div class="news-block-item" onclick="loadPage(\'newsDetail\', \'' + n.id + '\')">' +
+                '<div class="news-block-item-main">' +
+                    '<span class="news-block-item-title">' + (n.title || '').replace(/</g, '&lt;') + '</span>' +
+                    (isNewFlag ? '<span class="news-block-item-badge">NEW</span>' : '') +
+                '</div>' +
+                '<div class="news-block-item-sub">' + time + '</div>' +
+                '<i class="fas fa-chevron-right news-block-item-arrow"></i>' +
+            '</div>';
     }).join('') || '<div class="news-block-empty">暂无资讯</div>';
 }
 
@@ -6313,6 +6326,8 @@ function renderNewsDetail(id) {
         if (bodyEl) bodyEl.innerHTML = '<p>内容不存在或已下架。</p>';
         return;
     }
+    // 记录当前查看的资讯ID，便于统计转发
+    window.__currentNewsId = item.id;
     // 增加阅读量并保存
     var reads = typeof item.readCount === 'number' ? item.readCount : 0;
     item.readCount = reads + 1;
@@ -6330,6 +6345,20 @@ function renderNewsDetail(id) {
 }
 
 function shareNewsToTimeline() {
+    try {
+        var id = window.__currentNewsId;
+        if (id) {
+            var list = getNewsList();
+            var index = list.findIndex(function(n) { return n.id === id; });
+            if (index >= 0) {
+                var item = list[index];
+                var shares = typeof item.shareCount === 'number' ? item.shareCount : 0;
+                item.shareCount = shares + 1;
+                list[index] = item;
+                setNewsList(list);
+            }
+        }
+    } catch (e) {}
     if (typeof showShareOptions === 'function') {
         showShareOptions();
     } else if (typeof showNotification === 'function') {

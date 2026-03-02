@@ -16012,7 +16012,6 @@ body {
 .news-block-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 10px 12px;
     background: #f8f9fa;
     border-radius: 8px;
@@ -16029,6 +16028,28 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+.news-block-item-main {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+}
+.news-block-item-badge {
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #ff4d4f;
+    color: #fff;
+    font-size: 10px;
+    line-height: 18px;
+    height: 18px;
+    font-weight: 600;
+}
+.news-block-item-sub {
+    font-size: 12px;
+    color: #999;
+    margin-top: 2px;
 }
 .news-block-item-arrow {
     font-size: 12px;
