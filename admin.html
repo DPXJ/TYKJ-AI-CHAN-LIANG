@@ -33,7 +33,7 @@
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: #333; }
         .form-group input[type="text"], .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 14px; }
-        .cover-input-row { display: flex; align-items: center; gap: 8px; }
+        .cover-input-row { display: flex; align-items: center; gap: 8px; max-width: 480px; }
         .cover-input-row input[type="text"] { flex: 1; }
         .cover-upload-btn {
             position: relative;
@@ -70,6 +70,38 @@
         .form-actions button { padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; }
         .form-actions .btn-draft { background: #fff; border: 1px solid #d9d9d9; color: #666; }
         .form-actions .btn-draft:hover { border-color: #1890ff; color: #1890ff; }
+        .filter-row { margin-bottom: 12px; display: flex; gap: 12px; align-items: center; font-size: 13px; }
+        .filter-row .filter-label { color: #555; }
+        .admin-filter-select-wrap {
+            position: relative;
+            display: inline-block;
+        }
+        .admin-filter-select-wrap select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding: 4px 26px 4px 10px;
+            border-radius: 16px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            font-size: 13px;
+            color: #555;
+            cursor: pointer;
+            outline: none;
+        }
+        .admin-filter-select-wrap::after {
+            content: '';
+            position: absolute;
+            right: 9px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 5px solid #999;
+            pointer-events: none;
+        }
         .page-section { display: none; }
         .page-section.active { display: block; }
         .empty-tip { color: #999; text-align: center; padding: 40px 20px; }
@@ -154,15 +186,17 @@
                     <span>资讯列表（演示数据，可与小程序端联动）</span>
                     <button class="btn-primary" onclick="showPage('publish')"><i class="fas fa-plus"></i> 发布资讯</button>
                 </div>
-                <div style="margin-bottom:12px;display:flex;gap:12px;align-items:center;font-size:13px;">
-                    <div>
+                <div class="filter-row">
+                    <div class="filter-label">
                         筛选状态：
-                        <select id="adminFilterStatus" onchange="renderList()">
-                            <option value="all">全部</option>
-                            <option value="published">已发布</option>
-                            <option value="draft">草稿</option>
-                            <option value="deleted">已删除</option>
-                        </select>
+                        <span class="admin-filter-select-wrap">
+                            <select id="adminFilterStatus" onchange="renderList()">
+                                <option value="all">全部</option>
+                                <option value="published">已发布</option>
+                                <option value="draft">草稿</option>
+                                <option value="deleted">已删除</option>
+                            </select>
+                        </span>
                     </div>
                     <div style="color:#999;">阅读 / 转发数据为与小程序端联动后的统计值。</div>
                 </div>
@@ -183,7 +217,7 @@
                         <input type="text" id="newsTitle" placeholder="请输入资讯标题" required>
                     </div>
                     <div class="form-group">
-                        <label>封面图 <span style="color:#ff4d4f;font-size:12px;">（必填，可上传或填写图片 URL，不填将使用默认封面）</span></label>
+                        <label>封面图 <span style="color:#ff4d4f;font-size:12px;">（可上传图片或填写 URL；如均为空，将自动使用系统默认封面）</span></label>
                         <div class="cover-input-row">
                             <input type="text" id="newsCover" placeholder="输入图片 URL 或使用默认封面">
                             <label class="cover-upload-btn">

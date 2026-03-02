@@ -5991,13 +5991,15 @@ const expertData = {
 };
 
 // 加载页面
-function loadPage(pageName, param) {
+function loadPage(pageName, param, options) {
+    const suppressHistory = options && options.suppressHistory;
     const phoneContent = document.getElementById('phoneContent');
     const pageInfo = pageData[pageName];
     
     if (pageInfo) {
         if (!window.__pageStack) window.__pageStack = [];
-        if (window.currentPage) {
+        // 仅在前进导航时记录历史，返回时不再重复入栈
+        if (!suppressHistory && window.currentPage) {
             window.__pageStack.push(window.currentPage);
         }
         // 更新页面内容
@@ -6019,9 +6021,9 @@ function loadPage(pageName, param) {
         if (pageName === 'home') {
             setTimeout(() => {
                 console.log('Initializing inline AI diagnosis features...');
-                setupInlineAIDiagnosis();
-                initWeatherAlertBanner();
-                renderHomeNewsBlock();
+                try { setupInlineAIDiagnosis(); } catch (e) { console.error('setupInlineAIDiagnosis error', e); }
+                try { initWeatherAlertBanner(); } catch (e) { console.error('initWeatherAlertBanner error', e); }
+                try { renderHomeNewsBlock(); } catch (e) { console.error('renderHomeNewsBlock error', e); }
             }, 100);
         }
         
@@ -6085,6 +6087,18 @@ function loadPage(pageName, param) {
                 }
             }, 100);
         }
+
+        // 兜底：只要当前页面 DOM 中存在首页资讯容器，就强制渲染一次资讯块
+        setTimeout(() => {
+            try {
+                const homeNewsContainer = document.getElementById('homeNewsBlockList');
+                if (homeNewsContainer) {
+                    renderHomeNewsBlock();
+                }
+            } catch (e) {
+                console.error('fallback renderHomeNewsBlock error', e);
+            }
+        }, 150);
         
         // 如果是价格智能体页面，初始化主页
         if (pageName === 'wheatPriceAgent' || pageName === 'cornPriceAgent' || pageName === 'soyPriceAgent') {
@@ -6152,7 +6166,10 @@ function ensureTabbar(pageName) {
 function goBack() {
     if (window.__pageStack && window.__pageStack.length > 0) {
         const prev = window.__pageStack.pop();
-        if (prev) loadPage(prev);
+        if (prev) {
+            // 返回时不再将当前页重新写入历史
+            loadPage(prev, null, { suppressHistory: true });
+        }
     } else {
         loadPage('home');
     }
