@@ -394,6 +394,33 @@ const pageData = {
                         </div>
                     </div>
 
+                    <!-- 农业专家入口卡片 -->
+                    <div class="card expert-entry-card" onclick="loadPage('expertRanking')">
+                        <div class="expert-entry-header">
+                            <div class="expert-entry-left">
+                                <div class="expert-entry-icon">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <div class="expert-entry-info">
+                                    <div class="expert-entry-title">农业专家</div>
+                                    <div class="expert-entry-desc">在线咨询 · 专家指导 · 技术服务</div>
+                                </div>
+                            </div>
+                            <div class="expert-entry-right">
+                                <div class="expert-entry-hot"><i class="fas fa-fire"></i> 热门</div>
+                                <i class="fas fa-chevron-right expert-entry-arrow"></i>
+                            </div>
+                        </div>
+                        <div class="expert-entry-preview">
+                            <div class="expert-mini-avatar"><span>许</span></div>
+                            <div class="expert-mini-avatar"><span>郭</span></div>
+                            <div class="expert-mini-avatar"><span>鲁</span></div>
+                            <div class="expert-mini-avatar"><span>王</span></div>
+                            <div class="expert-mini-avatar more">+9</div>
+                            <span class="expert-entry-count">13位专家在线</span>
+                        </div>
+                    </div>
+
                     <!-- 数字大田功能入口 -->
                     <div class="card">
                         <div class="section-title">数字大田</div>
@@ -2878,6 +2905,24 @@ const pageData = {
                         </div>
                     </div>
                     
+                    <!-- 专家服务 -->
+                    <div class="card">
+                        <div class="card-title">专家服务</div>
+                        <div class="other-functions">
+                            <div class="other-item" onclick="loadPage('myExpertMessages')">
+                                <div class="other-icon" style="background:#fff3e0;color:#ef6c00;"><i class="fas fa-comments"></i></div>
+                                <div class="other-text">留言回复</div>
+                                <div class="other-badge">2</div>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                            <div class="other-item" onclick="loadPage('expertRanking')">
+                                <div class="other-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="fas fa-user-graduate"></i></div>
+                                <div class="other-text">农业专家</div>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- 其它功能 -->
                     <div class="card">
                         <div class="card-title">其它</div>
@@ -2938,26 +2983,148 @@ const pageData = {
         title: '消息',
         subtitle: '消息中心',
         content: `
-            <div class="mobile-page">
+            <div class="mobile-page messages-page">
                 <div class="mobile-header">
-                    <h1>消息</h1>
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+                    <h1>通知消息</h1>
                 </div>
                 <div class="mobile-content">
-                    <div class="card">
-                        <div class="empty-state">
-                            <i class="fas fa-comment-slash"></i>
-                            <h3>暂无消息</h3>
-                            <p>您还没有收到任何消息</p>
+                    <div class="msg-tabs">
+                        <div class="msg-tab active" onclick="switchMsgTab(this, 'all')">全部</div>
+                        <div class="msg-tab" onclick="switchMsgTab(this, 'message')">留言</div>
+                        <div class="msg-tab" onclick="switchMsgTab(this, 'reply')">回复</div>
+                        <div class="msg-tab" onclick="switchMsgTab(this, 'system')">系统</div>
+                    </div>
+                    <div id="msgListContainer">
+                        <div class="msg-notification-item unread" data-type="reply" onclick="loadPage('myExpertMessages')">
+                            <div class="msg-noti-icon reply"><i class="fas fa-reply"></i></div>
+                            <div class="msg-noti-content">
+                                <div class="msg-noti-title">许为钢 博士 回复了您的留言</div>
+                                <div class="msg-noti-text">您好，关于您咨询的小麦品种选择问题，建议您选择郑麦136...</div>
+                                <div class="msg-noti-time">10分钟前</div>
+                            </div>
+                            <div class="msg-noti-dot"></div>
+                        </div>
+                        <div class="msg-notification-item unread" data-type="message" onclick="loadPage('myExpertMessages')">
+                            <div class="msg-noti-icon message"><i class="fas fa-envelope"></i></div>
+                            <div class="msg-noti-content">
+                                <div class="msg-noti-title">您向 郭天财 教授 发送了留言</div>
+                                <div class="msg-noti-text">郭教授您好，我种的小麦最近出现叶片发黄的情况...</div>
+                                <div class="msg-noti-time">30分钟前</div>
+                            </div>
+                        </div>
+                        <div class="msg-notification-item unread" data-type="reply" onclick="loadPage('myExpertMessages')">
+                            <div class="msg-noti-icon reply"><i class="fas fa-reply"></i></div>
+                            <div class="msg-noti-content">
+                                <div class="msg-noti-title">张振臣 研究员 回复了您的留言</div>
+                                <div class="msg-noti-text">根据您描述的甘薯症状，初步判断为黑斑病，建议...</div>
+                                <div class="msg-noti-time">2小时前</div>
+                            </div>
+                            <div class="msg-noti-dot"></div>
+                        </div>
+                        <div class="msg-notification-item" data-type="system">
+                            <div class="msg-noti-icon system"><i class="fas fa-bullhorn"></i></div>
+                            <div class="msg-noti-content">
+                                <div class="msg-noti-title">系统通知</div>
+                                <div class="msg-noti-text">农业专家在线咨询功能已上线，快来向专家提问吧！</div>
+                                <div class="msg-noti-time">1天前</div>
+                            </div>
+                        </div>
+                        <div class="msg-notification-item" data-type="system">
+                            <div class="msg-noti-icon system"><i class="fas fa-cloud-sun-rain"></i></div>
+                            <div class="msg-noti-content">
+                                <div class="msg-noti-title">气象预警</div>
+                                <div class="msg-noti-text">柘城县未来3天有中到大雨，请做好田间排水防涝工作。</div>
+                                <div class="msg-noti-time">2天前</div>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        `
+    },
 
-                <!-- 底部导航 -->
-                <div class="mobile-footer tabbar">
-                    <div class="tab-item" data-page="home"><i class="fas fa-home"></i><span>首页</span></div>
-                    <div class="tab-item" data-page="workbench"><i class="fas fa-briefcase"></i><span>工作台</span></div>
-                    <div class="tab-item active" data-page="messages"><i class="fas fa-comment"></i><span>消息</span></div>
-                    <div class="tab-item" data-page="profile"><i class="fas fa-user"></i><span>我的</span></div>
+    expertRanking: {
+        title: '农业专家',
+        subtitle: '专家排行榜',
+        content: `
+            <div class="mobile-page expert-ranking-page">
+                <div class="mobile-header">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+                    <h1>农业专家</h1>
+                    <button class="header-message-btn" onclick="loadPage('messages')" style="position:absolute;right:16px;">
+                        <i class="fas fa-bell"></i>
+                        <span class="message-badge">3</span>
+                    </button>
+                </div>
+                <div class="mobile-content">
+                    <div class="expert-rank-tabs">
+                        <div class="expert-rank-tab active" onclick="switchExpertTab(this, 'field')">大田作物</div>
+                        <div class="expert-rank-tab" onclick="switchExpertTab(this, 'vegetable')">蔬菜瓜果</div>
+                        <div class="expert-rank-tab" onclick="switchExpertTab(this, 'livestock')">畜牧水产养殖</div>
+                    </div>
+                    <div class="expert-rank-list" id="expertRankList">
+                    </div>
+                </div>
+            </div>
+        `
+    },
+
+    expertMessageSend: {
+        title: '在线留言',
+        subtitle: '向专家发送留言',
+        content: `
+            <div class="mobile-page expert-msg-send-page">
+                <div class="mobile-header">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+                    <h1>在线留言</h1>
+                </div>
+                <div class="mobile-content">
+                    <div class="card expert-msg-target" id="expertMsgTarget">
+                    </div>
+                    <div class="card expert-msg-form">
+                        <div class="msg-form-label">留言内容</div>
+                        <textarea id="expertMsgTextarea" class="msg-form-textarea" placeholder="请输入您想咨询的问题，专家会尽快回复您..." rows="6"></textarea>
+                        <div class="msg-form-label">问题分类</div>
+                        <div class="msg-form-tags">
+                            <span class="msg-tag active" onclick="toggleMsgTag(this)">病虫害防治</span>
+                            <span class="msg-tag" onclick="toggleMsgTag(this)">品种选择</span>
+                            <span class="msg-tag" onclick="toggleMsgTag(this)">栽培技术</span>
+                            <span class="msg-tag" onclick="toggleMsgTag(this)">施肥用药</span>
+                            <span class="msg-tag" onclick="toggleMsgTag(this)">土壤改良</span>
+                            <span class="msg-tag" onclick="toggleMsgTag(this)">其他</span>
+                        </div>
+                        <div class="msg-form-label">上传图片（可选）</div>
+                        <div class="msg-form-upload" onclick="showNotification('图片上传功能演示中...', 'info')">
+                            <i class="fas fa-camera"></i>
+                            <span>点击上传图片</span>
+                        </div>
+                        <button class="btn-primary msg-submit-btn" onclick="submitExpertMessage()">
+                            <i class="fas fa-paper-plane"></i> 发送留言
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `
+    },
+
+    myExpertMessages: {
+        title: '留言回复',
+        subtitle: '我的专家留言与回复',
+        content: `
+            <div class="mobile-page my-expert-msg-page">
+                <div class="mobile-header">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+                    <h1>留言回复</h1>
+                </div>
+                <div class="mobile-content">
+                    <div class="msg-tabs">
+                        <div class="msg-tab active" onclick="switchMyMsgTab(this, 'all')">全部</div>
+                        <div class="msg-tab" onclick="switchMyMsgTab(this, 'replied')">已回复</div>
+                        <div class="msg-tab" onclick="switchMyMsgTab(this, 'pending')">待回复</div>
+                    </div>
+                    <div id="myMsgListContainer">
+                    </div>
                 </div>
             </div>
         `
@@ -6114,6 +6281,27 @@ function loadPage(pageName, param, options) {
                 initPriceSparkline();
             }, 200);
         }
+        
+        // 专家排行榜页面初始化
+        if (pageName === 'expertRanking') {
+            setTimeout(() => {
+                renderExpertRankList('field');
+            }, 50);
+        }
+        
+        // 我的留言回复页面初始化
+        if (pageName === 'myExpertMessages') {
+            setTimeout(() => {
+                renderMyExpertMessages('all');
+            }, 50);
+        }
+        
+        // 发送留言页面初始化
+        if (pageName === 'expertMessageSend' && param) {
+            setTimeout(() => {
+                renderExpertMsgTarget(param);
+            }, 50);
+        }
     }
 }
 
@@ -6148,6 +6336,8 @@ function ensureTabbar(pageName) {
             if (name === 'fieldWorkstation') return 'workbench';
             if (name === 'workbench') return 'workbench';
             if (name === 'newsList' || name === 'newsDetail') return 'home';
+            if (name === 'expertRanking' || name === 'expertMessageSend' || name === 'messages') return 'home';
+            if (name === 'myExpertMessages') return 'profile';
             // 新AI三段式页面在全局tabbar上归为 AI
             if (['agentMarket','aiChatCenter','mySubscriptions','aiNewChat','expertRecommend','historyDialog','aiDiagnosis','wheatPriceAgent','cornPriceAgent','soyPriceAgent'].includes(name)) return 'ai';
             return name;
@@ -6213,7 +6403,7 @@ function updateNavigationState(pageName) {
 
 // 显示消息页面
 function showMessages() {
-    showNotification('消息功能开发中...', 'info');
+    loadPage('messages');
 }
 
 // 显示即将推出功能
@@ -15714,4 +15904,206 @@ function showFieldPredictionResult(fieldId, field) {
 // 分享产量报告
 function shareYieldReport() {
     alert('报告分享功能开发中...');
+}
+
+// ===== 农业专家排行榜模块 =====
+const expertRankData = {
+    field: [
+        { id: 'xwg', name: '许为钢', title: '博士', abbr: '为钢', specialty: '小麦育种', score: 493, color: '#4CAF50' },
+        { id: 'gtc', name: '郭天财', title: '教授', abbr: '天财', specialty: '小麦管理', score: 469, color: '#FF9800' },
+        { id: 'lct', name: '鲁传涛', title: '研究员', abbr: '传涛', specialty: '植物保护', score: 439, color: '#2196F3' },
+        { id: 'wsz', name: '王绍中', title: '研究员', abbr: '绍中', specialty: '小麦管理', score: 430, color: '#9C27B0' },
+        { id: 'zzc', name: '张振臣', title: '研究员', abbr: '振臣', specialty: '甘薯病虫害', score: 417, color: '#F44336' },
+        { id: 'wyh', name: '王永华', title: '研究员', abbr: '永华', specialty: '小麦栽培', score: 404, color: '#00BCD4' },
+        { id: 'zgl', name: '张桂兰', title: '研究员', abbr: '桂兰', specialty: '土肥新技术推广', score: 400, color: '#E91E63' },
+        { id: 'lxt', name: '刘新涛', title: '副研', abbr: '新涛', specialty: '植物保护', score: 400, color: '#3F51B5' },
+        { id: 'hs', name: '韩松', title: '副研', abbr: '韩松', specialty: '小麦虫害', score: 400, color: '#009688' },
+        { id: 'lzh', name: '李志红', title: '副研', abbr: '志红', specialty: '玉米育种', score: 388, color: '#795548' },
+        { id: 'czw', name: '陈志伟', title: '研究员', abbr: '志伟', specialty: '大豆栽培', score: 375, color: '#607D8B' },
+        { id: 'hmy', name: '黄明月', title: '教授', abbr: '明月', specialty: '作物遗传', score: 362, color: '#FF5722' },
+        { id: 'sjf', name: '孙建峰', title: '研究员', abbr: '建峰', specialty: '水稻管理', score: 350, color: '#8BC34A' }
+    ],
+    vegetable: [
+        { id: 'zmh', name: '赵明辉', title: '研究员', abbr: '明辉', specialty: '番茄栽培', score: 478, color: '#F44336' },
+        { id: 'cyl', name: '陈玉兰', title: '教授', abbr: '玉兰', specialty: '黄瓜育种', score: 455, color: '#4CAF50' },
+        { id: 'ljp', name: '李建平', title: '副研', abbr: '建平', specialty: '瓜果病害', score: 432, color: '#2196F3' },
+        { id: 'wfm', name: '吴芳梅', title: '研究员', abbr: '芳梅', specialty: '设施蔬菜', score: 418, color: '#9C27B0' },
+        { id: 'zyq', name: '张玉琴', title: '教授', abbr: '玉琴', specialty: '叶菜栽培', score: 405, color: '#FF9800' },
+        { id: 'hxl', name: '何秀丽', title: '研究员', abbr: '秀丽', specialty: '草莓种植', score: 398, color: '#E91E63' },
+        { id: 'lgh', name: '刘国华', title: '副研', abbr: '国华', specialty: '西瓜育种', score: 385, color: '#00BCD4' },
+        { id: 'wjl', name: '王金龙', title: '研究员', abbr: '金龙', specialty: '辣椒栽培', score: 370, color: '#3F51B5' }
+    ],
+    livestock: [
+        { id: 'zhy', name: '张海洋', title: '教授', abbr: '海洋', specialty: '生猪养殖', score: 465, color: '#795548' },
+        { id: 'lxm', name: '李晓明', title: '研究员', abbr: '晓明', specialty: '家禽疫病', score: 448, color: '#F44336' },
+        { id: 'wdq', name: '王德全', title: '博士', abbr: '德全', specialty: '水产养殖', score: 435, color: '#2196F3' },
+        { id: 'sjh', name: '孙建华', title: '副研', abbr: '建华', specialty: '牛羊饲养', score: 412, color: '#4CAF50' },
+        { id: 'zcm', name: '赵翠梅', title: '研究员', abbr: '翠梅', specialty: '淡水鱼养殖', score: 398, color: '#9C27B0' },
+        { id: 'hdl', name: '胡大力', title: '教授', abbr: '大力', specialty: '饲料营养', score: 385, color: '#FF9800' }
+    ]
+};
+
+function renderExpertRankList(category) {
+    const container = document.getElementById('expertRankList');
+    if (!container) return;
+    const list = expertRankData[category] || [];
+    container.innerHTML = list.map(function(expert, index) {
+        const rank = index + 1;
+        let rankClass = '';
+        if (rank <= 3) rankClass = 'top-' + rank;
+        const titleClass = expert.title === '博士' ? 'doctor' :
+                           expert.title === '教授' ? 'professor' :
+                           expert.title === '副研' ? 'associate' : 'researcher';
+        return '<div class="expert-rank-item">' +
+            '<div class="expert-rank-num ' + rankClass + '">' + rank + '</div>' +
+            '<div class="expert-rank-avatar" style="background:' + expert.color + '"><span>' + expert.abbr.charAt(0) + expert.abbr.charAt(1) + '</span></div>' +
+            '<div class="expert-rank-info">' +
+                '<div class="expert-rank-name">' + expert.name + ' <span class="expert-title-tag ' + titleClass + '">' + expert.title + '</span></div>' +
+                '<div class="expert-rank-specialty">擅长：' + expert.specialty + '</div>' +
+            '</div>' +
+            '<div class="expert-rank-score"><i class="fas fa-fire" style="color:#ff9800"></i> ' + expert.score + '</div>' +
+            '<div class="expert-rank-actions">' +
+                '<button class="expert-action-btn contact" onclick="event.stopPropagation();showNotification(\'预约沟通功能演示中...\', \'info\')"><i class="fas fa-phone"></i> 预约沟通</button>' +
+                '<button class="expert-action-btn message" onclick="event.stopPropagation();loadPage(\'expertMessageSend\', \'' + expert.id + '\')"><i class="fas fa-envelope"></i> 在线留言</button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function switchExpertTab(el, category) {
+    document.querySelectorAll('.expert-rank-tab').forEach(function(t) { t.classList.remove('active'); });
+    el.classList.add('active');
+    renderExpertRankList(category);
+}
+
+function renderExpertMsgTarget(expertId) {
+    var expert = null;
+    ['field', 'vegetable', 'livestock'].forEach(function(cat) {
+        expertRankData[cat].forEach(function(e) {
+            if (e.id === expertId) expert = e;
+        });
+    });
+    if (!expert) return;
+    window._currentMsgExpert = expert;
+    var container = document.getElementById('expertMsgTarget');
+    if (!container) return;
+    var titleClass = expert.title === '博士' ? 'doctor' :
+                     expert.title === '教授' ? 'professor' :
+                     expert.title === '副研' ? 'associate' : 'researcher';
+    container.innerHTML =
+        '<div class="msg-target-info">' +
+            '<div class="expert-rank-avatar" style="background:' + expert.color + ';width:48px;height:48px;font-size:16px;"><span>' + expert.abbr.charAt(0) + expert.abbr.charAt(1) + '</span></div>' +
+            '<div class="msg-target-detail">' +
+                '<div class="msg-target-name">' + expert.name + ' <span class="expert-title-tag ' + titleClass + '">' + expert.title + '</span></div>' +
+                '<div class="msg-target-specialty">擅长：' + expert.specialty + '</div>' +
+            '</div>' +
+        '</div>';
+}
+
+function toggleMsgTag(el) {
+    el.classList.toggle('active');
+}
+
+function submitExpertMessage() {
+    var textarea = document.getElementById('expertMsgTextarea');
+    if (!textarea || !textarea.value.trim()) {
+        showNotification('请输入留言内容', 'warning');
+        return;
+    }
+    var expert = window._currentMsgExpert;
+    var expertName = expert ? expert.name : '专家';
+    showNotification('留言已发送给 ' + expertName + '，请等待回复！', 'success');
+    setTimeout(function() {
+        loadPage('myExpertMessages');
+    }, 1500);
+}
+
+// 我的留言数据（模拟）
+var myExpertMessagesData = [
+    {
+        id: 1, expertId: 'xwg', expertName: '许为钢', expertTitle: '博士', expertAbbr: '为钢', expertColor: '#4CAF50',
+        specialty: '小麦育种', content: '许博士您好，我想咨询一下关于郑麦136品种在豫东地区的适种性，以及春播和秋播的最佳时间。',
+        time: '2026-03-06 09:15', status: 'replied', category: '品种选择',
+        reply: { content: '您好，关于您咨询的小麦品种选择问题，郑麦136在豫东地区适应性良好。建议秋播时间在10月10日-25日之间，播量12-15斤/亩。春播不建议，该品种属半冬性品种，需一定的春化时间。建议您关注当地气象预报，适时播种。', time: '2026-03-06 10:30' }
+    },
+    {
+        id: 2, expertId: 'gtc', expertName: '郭天财', expertTitle: '教授', expertAbbr: '天财', expertColor: '#FF9800',
+        specialty: '小麦管理', content: '郭教授您好，我种的小麦最近出现叶片发黄的情况，不确定是缺肥还是病害导致的，请帮忙看看。',
+        time: '2026-03-05 14:20', status: 'pending', category: '病虫害防治'
+    },
+    {
+        id: 3, expertId: 'zzc', expertName: '张振臣', expertTitle: '研究员', expertAbbr: '振臣', expertColor: '#F44336',
+        specialty: '甘薯病虫害', content: '张研究员您好，我的甘薯苗床出现了黑色斑点，叶片卷曲枯萎，疑似黑斑病，请问如何防治？',
+        time: '2026-03-04 16:45', status: 'replied', category: '病虫害防治',
+        reply: { content: '根据您描述的甘薯症状，初步判断为黑斑病。建议：1）立即拔除病株并集中销毁；2）用50%多菌灵可湿性粉剂800倍液喷雾防治；3）注意控制苗床湿度，避免积水；4）薯种入窖前做好消毒处理。如情况严重可发图片给我进一步诊断。', time: '2026-03-05 09:10' }
+    },
+    {
+        id: 4, expertId: 'wyh', expertName: '王永华', expertTitle: '研究员', expertAbbr: '永华', expertColor: '#00BCD4',
+        specialty: '小麦栽培', content: '王研究员好，请问返青期小麦追肥应该用什么肥料，用量多少合适？',
+        time: '2026-03-03 10:00', status: 'replied', category: '施肥用药',
+        reply: { content: '返青期追肥建议：1）亩施尿素8-10公斤，配合磷酸二铵5公斤效果更佳；2）追肥时期掌握在日平均气温稳定通过3℃、麦苗开始返青时；3）结合浇返青水施用，肥效更好；4）弱苗田可适当增加氮肥用量。注意避免施肥过多导致旺长倒伏。', time: '2026-03-03 15:30' }
+    }
+];
+
+function renderMyExpertMessages(filter) {
+    var container = document.getElementById('myMsgListContainer');
+    if (!container) return;
+    var list = myExpertMessagesData;
+    if (filter === 'replied') list = list.filter(function(m) { return m.status === 'replied'; });
+    if (filter === 'pending') list = list.filter(function(m) { return m.status === 'pending'; });
+
+    if (list.length === 0) {
+        container.innerHTML = '<div class="card"><div class="empty-state"><i class="fas fa-inbox"></i><h3>暂无留言</h3><p>去专家排行榜向专家提问吧</p></div></div>';
+        return;
+    }
+
+    container.innerHTML = list.map(function(msg) {
+        var statusHtml = msg.status === 'replied'
+            ? '<span class="msg-status replied"><i class="fas fa-check-circle"></i> 已回复</span>'
+            : '<span class="msg-status pending"><i class="fas fa-clock"></i> 待回复</span>';
+        var titleClass = msg.expertTitle === '博士' ? 'doctor' :
+                         msg.expertTitle === '教授' ? 'professor' :
+                         msg.expertTitle === '副研' ? 'associate' : 'researcher';
+        var replyHtml = '';
+        if (msg.reply) {
+            replyHtml = '<div class="msg-reply-block">' +
+                '<div class="msg-reply-header"><i class="fas fa-reply"></i> 专家回复 <span class="msg-reply-time">' + msg.reply.time + '</span></div>' +
+                '<div class="msg-reply-content">' + msg.reply.content + '</div>' +
+            '</div>';
+        }
+        return '<div class="card my-msg-card">' +
+            '<div class="my-msg-header">' +
+                '<div class="expert-rank-avatar" style="background:' + msg.expertColor + ';width:40px;height:40px;font-size:14px;"><span>' + msg.expertAbbr.charAt(0) + msg.expertAbbr.charAt(1) + '</span></div>' +
+                '<div class="my-msg-expert-info">' +
+                    '<div class="my-msg-expert-name">' + msg.expertName + ' <span class="expert-title-tag ' + titleClass + '">' + msg.expertTitle + '</span></div>' +
+                    '<div class="my-msg-expert-spec">擅长：' + msg.specialty + '</div>' +
+                '</div>' +
+                statusHtml +
+            '</div>' +
+            '<div class="my-msg-category"><span class="msg-category-tag">' + msg.category + '</span></div>' +
+            '<div class="my-msg-content">' + msg.content + '</div>' +
+            '<div class="my-msg-time"><i class="fas fa-clock"></i> ' + msg.time + '</div>' +
+            replyHtml +
+            (msg.status === 'replied' ? '<div class="my-msg-actions"><button class="expert-action-btn message" onclick="loadPage(\'expertMessageSend\', \'' + msg.expertId + '\')"><i class="fas fa-reply"></i> 继续提问</button></div>' : '') +
+        '</div>';
+    }).join('');
+}
+
+function switchMyMsgTab(el, filter) {
+    el.parentNode.querySelectorAll('.msg-tab').forEach(function(t) { t.classList.remove('active'); });
+    el.classList.add('active');
+    renderMyExpertMessages(filter);
+}
+
+function switchMsgTab(el, type) {
+    el.parentNode.querySelectorAll('.msg-tab').forEach(function(t) { t.classList.remove('active'); });
+    el.classList.add('active');
+    var items = document.querySelectorAll('.msg-notification-item');
+    items.forEach(function(item) {
+        if (type === 'all') {
+            item.style.display = '';
+        } else {
+            item.style.display = item.getAttribute('data-type') === type ? '' : 'none';
+        }
+    });
 }
