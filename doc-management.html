@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数智平台 - AI文档管理</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sidebar: '#001529',
+                        'sidebar-active': '#1890ff',
+                        'sidebar-hover': 'rgba(255,255,255,0.08)',
+                        primary: '#1890ff',
+                        success: '#52c41a',
+                        warning: '#faad14',
+                        danger: '#ff4d4f',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-menu-item { transition: all 0.2s; }
+        .sidebar-menu-item:hover { background: rgba(255,255,255,0.08); }
+        .sidebar-menu-item.active { background: #1890ff; }
+        .sidebar-sub-item { transition: all 0.2s; padding-left: 48px; }
+        .sidebar-sub-item:hover { background: rgba(255,255,255,0.08); }
+        .sidebar-sub-item.active { background: transparent; color: #1890ff; }
+        .tree-node { cursor: pointer; transition: background 0.15s; }
+        .tree-node:hover { background: #e6f7ff; }
+        .tree-node.active { background: #bae7ff; color: #096dd9; font-weight: 600; }
+        .tag-perf { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-upload { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .tag-sync { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+        .stat-card { transition: transform 0.2s, box-shadow 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .doc-row { transition: background 0.15s; }
+        .doc-row:hover { background: #fafafa; }
+        .ai-search-input:focus { box-shadow: 0 0 0 2px rgba(24,144,255,0.2); }
+        .op-btn { transition: color 0.15s; }
+        .op-btn:hover { color: #1890ff; }
+        @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .pulse-dot { animation: pulse-dot 1.5s infinite; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<div class="flex min-h-screen">
+
+    <!-- 左侧导航栏 -->
+    <aside class="w-56 bg-sidebar text-white flex-shrink-0 flex flex-col min-h-screen fixed left-0 top-0 bottom-0 z-30">
+        <div class="px-5 py-4 border-b border-white/10 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-sm">
+                <i class="fas fa-cubes"></i>
+            </div>
+            <span class="text-base font-semibold tracking-wide">数智平台</span>
+        </div>
+        <nav class="flex-1 py-2 overflow-y-auto text-sm" id="sidebarNav">
+            <div class="sidebar-menu-item flex items-center gap-3 px-5 py-2.5 cursor-pointer text-white/70">
+                <i class="fas fa-home w-4 text-center"></i><span>工作台</span>
+            </div>
+
+            <div class="mt-1">
+                <div class="sidebar-menu-item flex items-center gap-3 px-5 py-2.5 cursor-pointer text-white/70" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-users w-4 text-center"></i><span class="flex-1">组织管理</span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"></i>
+                </div>
+                <div class="sub-menu hidden">
+                    <div class="sidebar-sub-item py-2 cursor-pointer text-white/50 text-xs">部门管理</div>
+                    <div class="sidebar-sub-item py-2 cursor-pointer text-white/50 text-xs">成员管理</div>
+                    <div class="sidebar-sub-item py-2 cursor-pointer text-white/50 text-xs">角色权限</div>
+                </div>
+            </div>
+
+            <div class="mt-1">
+                <div class="sidebar-menu-item flex items-center gap-3 px-5 py-2.5 cursor-pointer text-white/70" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-chart-bar w-4 text-center"></i><span class="flex-1">绩效管理</span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"></i>
+                </div>
+                <div class="sub-menu hidden">
+                    <div class="sidebar-sub-item py-2 cursor-pointer text-white/50 text-xs">月度绩效</div>
+                    <div class="sidebar-sub-item py-2 cursor-pointer text-white/50 text-xs">绩效反馈</div>
+                    <div class="sidebar-sub-item py-2 cursor-pointer text-white/50 text-xs">绩效报表</div>
+                </div>
+            </div>
+
+            <div class="mt-1">
+                <div class="sidebar-menu-item flex items-center gap-3 px-5 py-2.5 cursor-pointer text-white" onclick="toggleSubMenu(this)" style="background:rgba(255,255,255,0.08)">
+                    <i class="fas fa-folder-open w-4 text-center text-blue-400"></i><span class="flex-1">文档管理</span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200 rotate-180"></i>
+                </div>
+                <div class="sub-menu">
+                    <div class="sidebar-sub-item py-2 cursor-pointer text-white/50 text-xs">全部文档</div>
+                    <div class="sidebar-sub-item py-2 cursor-pointer text-xs active" style="color:#1890ff;font-weight:600;">
+                        <i class="fas fa-circle text-[6px] mr-1"></i>AI文档管理
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-1">
+                <div class="sidebar-menu-item flex items-center gap-3 px-5 py-2.5 cursor-pointer text-white/70" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-shopping-cart w-4 text-center"></i><span class="flex-1">采购管理</span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"></i>
+                </div>
+                <div class="sub-menu hidden">
+                    <div class="sidebar-sub-item py-2 cursor-pointer text-white/50 text-xs">采购申请</div>
+                    <div class="sidebar-sub-item py-2 cursor-pointer text-white/50 text-xs">供应商管理</div>
+                </div>
+            </div>
+
+            <div class="mt-1">
+                <div class="sidebar-menu-item flex items-center gap-3 px-5 py-2.5 cursor-pointer text-white/70">
+                    <i class="fas fa-cog w-4 text-center"></i><span>系统设置</span>
+                </div>
+            </div>
+        </nav>
+        <div class="px-5 py-3 border-t border-white/10 text-xs text-white/40 flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">高</div>
+            <div>
+                <div class="text-white/80 text-xs font-medium">高总</div>
+                <div class="text-white/40 text-[10px]">超级管理员</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 ml-56 min-h-screen">
+        <!-- 顶部栏 -->
+        <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+                <a href="#" class="hover:text-primary">文档管理</a>
+                <span>/</span>
+                <span class="text-gray-800 font-medium" id="breadcrumbCurrent">AI文档管理</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="relative text-gray-500 hover:text-primary">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">3</span>
+                </button>
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">高</div>
+                    <span>高总</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <div class="stat-card bg-white rounded-lg p-5 border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm text-gray-500">本月沉淀文档</span>
+                        <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                            <i class="fas fa-file-alt text-blue-500"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-800">47</div>
+                    <div class="mt-2 text-xs text-gray-400 flex items-center gap-1">
+                        <i class="fas fa-arrow-up text-green-500"></i>
+                        <span class="text-green-500">12%</span> 较上月增长
+                    </div>
+                </div>
+                <div class="stat-card bg-white rounded-lg p-5 border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm text-gray-500">待归档文档</span>
+                        <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                            <i class="fas fa-exclamation-circle text-orange-500"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-800">5</div>
+                    <div class="mt-2 text-xs text-gray-400 flex items-center gap-1">
+                        <span class="pulse-dot inline-block w-2 h-2 rounded-full bg-orange-400 mr-1"></span>
+                        采购部、财务部尚未完成
+                    </div>
+                </div>
+                <div class="stat-card bg-white rounded-lg p-5 border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm text-gray-500">覆盖部门</span>
+                        <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                            <i class="fas fa-building text-green-500"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-800">6 <span class="text-sm font-normal text-gray-400">/ 8</span></div>
+                    <div class="mt-2 text-xs text-gray-400">本月已归档部门数</div>
+                </div>
+                <div class="stat-card bg-white rounded-lg p-5 border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm text-gray-500">AI检索次数</span>
+                        <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                            <i class="fas fa-robot text-purple-500"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-800">128</div>
+                    <div class="mt-2 text-xs text-gray-400 flex items-center gap-1">
+                        <i class="fas fa-arrow-up text-green-500"></i>
+                        <span class="text-green-500">36%</span> 本月使用量
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI智能搜索 -->
+            <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-5 mb-6">
+                <div class="max-w-2xl mx-auto">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" class="ai-search-input w-full pl-11 pr-28 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary transition-all" placeholder="AI智能搜索：试试"上个月售前的方案"、"采购部3月提交的文件"..." id="aiSearchInput" onkeydown="if(event.key==='Enter') doAiSearch()">
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                            <button class="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 hover:from-blue-600 hover:to-blue-700 transition-all" onclick="doAiSearch()">
+                                <i class="fas fa-robot"></i> AI 检索
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex items-center gap-2 text-xs text-gray-400">
+                        <span>热门搜索：</span>
+                        <span class="px-2 py-0.5 bg-gray-100 rounded cursor-pointer hover:bg-blue-50 hover:text-primary" onclick="document.getElementById('aiSearchInput').value='售前业务支持文档';doAiSearch()">售前业务支持文档</span>
+                        <span class="px-2 py-0.5 bg-gray-100 rounded cursor-pointer hover:bg-blue-50 hover:text-primary" onclick="document.getElementById('aiSearchInput').value='供应商评审表';doAiSearch()">供应商评审表</span>
+                        <span class="px-2 py-0.5 bg-gray-100 rounded cursor-pointer hover:bg-blue-50 hover:text-primary" onclick="document.getElementById('aiSearchInput').value='3月产品中心';doAiSearch()">3月产品中心</span>
+                    </div>
+                </div>
+                <!-- AI搜索结果区 -->
+                <div id="aiSearchResult" class="hidden mt-4 max-w-2xl mx-auto"></div>
+            </div>
+
+            <!-- 主内容区：左侧目录树 + 右侧文档列表 -->
+            <div class="flex gap-4">
+                <!-- 左侧：虚拟目录树 -->
+                <div class="w-64 flex-shrink-0 bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                        <span class="text-sm font-semibold text-gray-700"><i class="fas fa-folder-tree mr-2 text-primary"></i>文档目录</span>
+                        <button class="text-xs text-gray-400 hover:text-primary" onclick="collapseAll()"><i class="fas fa-compress-alt"></i></button>
+                    </div>
+                    <div class="p-2 text-sm max-h-[520px] overflow-y-auto" id="dirTree"></div>
+                </div>
+
+                <!-- 右侧：文档列表 -->
+                <div class="flex-1 bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-semibold text-gray-700" id="currentFolderTitle">
+                                <i class="fas fa-folder-open mr-1 text-yellow-500"></i>全部文档
+                            </span>
+                            <span class="text-xs text-gray-400" id="docCount">共 47 个文件</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select class="text-xs border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:border-primary" onchange="filterBySource(this.value)">
+                                <option value="all">全部来源</option>
+                                <option value="月度绩效">月度绩效</option>
+                                <option value="手动上传">手动上传</option>
+                                <option value="业务同步">业务同步</option>
+                            </select>
+                            <select class="text-xs border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:border-primary" onchange="filterByDept(this.value)">
+                                <option value="all">全部部门</option>
+                                <option value="产品中心">产品中心</option>
+                                <option value="交付中心">交付中心</option>
+                                <option value="研发部">研发部</option>
+                                <option value="采购部">采购部</option>
+                                <option value="售前部">售前部</option>
+                                <option value="财务部">财务部</option>
+                                <option value="运营部">运营部</option>
+                                <option value="人力资源部">人力资源部</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 文档表格 -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wider">
+                                    <th class="px-4 py-3 font-medium">文件名</th>
+                                    <th class="px-4 py-3 font-medium w-24">来源</th>
+                                    <th class="px-4 py-3 font-medium w-28">所属部门</th>
+                                    <th class="px-4 py-3 font-medium w-20">提交人</th>
+                                    <th class="px-4 py-3 font-medium w-36">创建时间</th>
+                                    <th class="px-4 py-3 font-medium w-44 text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="docTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="px-4 py-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                        <span id="paginationInfo">显示 1-15 / 共 47 条</span>
+                        <div class="flex items-center gap-1">
+                            <button class="px-2 py-1 rounded border border-gray-200 hover:border-primary hover:text-primary">&laquo;</button>
+                            <button class="px-2.5 py-1 rounded bg-primary text-white">1</button>
+                            <button class="px-2.5 py-1 rounded border border-gray-200 hover:border-primary hover:text-primary">2</button>
+                            <button class="px-2.5 py-1 rounded border border-gray-200 hover:border-primary hover:text-primary">3</button>
+                            <button class="px-2 py-1 rounded border border-gray-200 hover:border-primary hover:text-primary">&raquo;</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- 文件预览弹窗 -->
+<div id="previewModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center" onclick="closePreview(event)">
+    <div class="bg-white rounded-xl max-w-2xl w-full mx-4 shadow-2xl overflow-hidden" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+            <span class="text-sm font-semibold text-gray-700" id="previewTitle">文件预览</span>
+            <button class="text-gray-400 hover:text-gray-600" onclick="closePreview()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-8 text-center" id="previewContent">
+            <div class="w-20 h-20 mx-auto rounded-xl bg-blue-50 flex items-center justify-center mb-4">
+                <i class="fas fa-file-pdf text-3xl text-red-500"></i>
+            </div>
+            <p class="text-sm text-gray-500">文件预览功能演示中...</p>
+        </div>
+    </div>
+</div>
+
+<!-- AI对话搜索弹窗 -->
+<div id="aiChatModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center" onclick="closeAiChat(event)">
+    <div class="bg-white rounded-xl max-w-lg w-full mx-4 shadow-2xl overflow-hidden" onclick="event.stopPropagation()" style="max-height:70vh;display:flex;flex-direction:column;">
+        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 flex-shrink-0">
+            <span class="text-sm font-semibold text-gray-700"><i class="fas fa-robot mr-2 text-primary"></i>AI对话式搜索</span>
+            <button class="text-gray-400 hover:text-gray-600" onclick="closeAiChat()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-3" id="aiChatMessages">
+            <div class="flex gap-2">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs flex-shrink-0"><i class="fas fa-robot"></i></div>
+                <div class="bg-gray-100 rounded-xl rounded-tl-none px-4 py-2.5 text-sm text-gray-700 max-w-xs">
+                    您好！我是AI文档助手，可以帮您快速查找公司文档。<br>试试说："找一下上个月售前提交的方案"
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-100 p-3 flex gap-2 flex-shrink-0">
+            <input type="text" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="输入您的问题..." id="aiChatInput" onkeydown="if(event.key==='Enter') sendAiChat()">
+            <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600" onclick="sendAiChat()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== 模拟数据 =====
+var DEPARTMENTS = ['产品中心','交付中心','研发部','采购部','售前部','财务部','运营部','人力资源部'];
+var SOURCES = ['月度绩效','手动上传','业务同步'];
+var FILE_ICONS = {
+    pdf: { icon: 'fa-file-pdf', color: 'text-red-500', bg: 'bg-red-50' },
+    doc: { icon: 'fa-file-word', color: 'text-blue-600', bg: 'bg-blue-50' },
+    docx: { icon: 'fa-file-word', color: 'text-blue-600', bg: 'bg-blue-50' },
+    xls: { icon: 'fa-file-excel', color: 'text-green-600', bg: 'bg-green-50' },
+    xlsx: { icon: 'fa-file-excel', color: 'text-green-600', bg: 'bg-green-50' },
+    ppt: { icon: 'fa-file-powerpoint', color: 'text-orange-500', bg: 'bg-orange-50' },
+    pptx: { icon: 'fa-file-powerpoint', color: 'text-orange-500', bg: 'bg-orange-50' },
+    jpg: { icon: 'fa-file-image', color: 'text-purple-500', bg: 'bg-purple-50' },
+    png: { icon: 'fa-file-image', color: 'text-purple-500', bg: 'bg-purple-50' },
+    mp4: { icon: 'fa-file-video', color: 'text-pink-500', bg: 'bg-pink-50' },
+};
+function getFileInfo(name) {
+    var ext = name.split('.').pop().toLowerCase();
+    return FILE_ICONS[ext] || { icon: 'fa-file', color: 'text-gray-500', bg: 'bg-gray-50' };
+}
+function srcTag(src) {
+    if (src === '月度绩效') return '<span class="tag-perf text-xs px-2 py-0.5 rounded-full">月度绩效</span>';
+    if (src === '手动上传') return '<span class="tag-upload text-xs px-2 py-0.5 rounded-full">手动上传</span>';
+    return '<span class="tag-sync text-xs px-2 py-0.5 rounded-full">业务同步</span>';
+}
+
+var mockDocs = [
+    { name: '2026年3月-售前业务支持文档.pdf', source: '月度绩效', dept: '售前部', author: '张伟', time: '2026-03-05 14:30', month: '03', year: '2026' },
+    { name: '采购部-Q1供应商评审表.xlsx', source: '手动上传', dept: '采购部', author: '李吉强', time: '2026-03-04 16:20', month: '03', year: '2026' },
+    { name: '云农谷"AI+农业"方案初稿.docx', source: '业务同步', dept: '产品中心', author: '王磊', time: '2026-03-04 11:15', month: '03', year: '2026' },
+    { name: '3月售前客户拜访计划.pdf', source: '月度绩效', dept: '售前部', author: '张伟', time: '2026-03-03 09:45', month: '03', year: '2026' },
+    { name: '交付中心-项目验收报告模板.docx', source: '月度绩效', dept: '交付中心', author: '刘洋', time: '2026-03-03 17:00', month: '03', year: '2026' },
+    { name: '研发部-3月代码审查报告.pdf', source: '月度绩效', dept: '研发部', author: '陈建', time: '2026-03-03 15:30', month: '03', year: '2026' },
+    { name: '产品中心-需求评审会议纪要.docx', source: '月度绩效', dept: '产品中心', author: '赵婷', time: '2026-03-02 10:20', month: '03', year: '2026' },
+    { name: '运营部-3月社群运营周报.pptx', source: '月度绩效', dept: '运营部', author: '孙丽', time: '2026-03-02 18:00', month: '03', year: '2026' },
+    { name: '人力资源部-3月招聘进展.xlsx', source: '月度绩效', dept: '人力资源部', author: '周敏', time: '2026-03-01 14:10', month: '03', year: '2026' },
+    { name: '售前部-智慧农业解决方案V2.pptx', source: '月度绩效', dept: '售前部', author: '张伟', time: '2026-03-01 11:00', month: '03', year: '2026' },
+    { name: '产品中心-竞品分析报告.pdf', source: '手动上传', dept: '产品中心', author: '王磊', time: '2026-03-01 09:30', month: '03', year: '2026' },
+    { name: '交付中心-客户培训手册.docx', source: '业务同步', dept: '交付中心', author: '刘洋', time: '2026-02-28 16:45', month: '03', year: '2026' },
+    { name: '研发部-API接口文档V3.pdf', source: '手动上传', dept: '研发部', author: '陈建', time: '2026-02-28 10:00', month: '03', year: '2026' },
+    { name: '运营部-短视频脚本策划.mp4', source: '月度绩效', dept: '运营部', author: '孙丽', time: '2026-02-27 15:20', month: '03', year: '2026' },
+    { name: '售前部-客户需求调研问卷.xlsx', source: '月度绩效', dept: '售前部', author: '李明', time: '2026-02-27 09:00', month: '03', year: '2026' },
+    { name: '产品中心-产品路线图2026.pptx', source: '手动上传', dept: '产品中心', author: '赵婷', time: '2026-02-26 14:30', month: '02', year: '2026' },
+    { name: '交付中心-2月项目交付总结.pdf', source: '月度绩效', dept: '交付中心', author: '刘洋', time: '2026-02-25 17:00', month: '02', year: '2026' },
+    { name: '研发部-2月技术分享PPT.pptx', source: '月度绩效', dept: '研发部', author: '陈建', time: '2026-02-25 11:30', month: '02', year: '2026' },
+    { name: '采购部-供应商资质审核表.xlsx', source: '月度绩效', dept: '采购部', author: '李吉强', time: '2026-02-24 16:00', month: '02', year: '2026' },
+    { name: '售前部-云农谷平台演示方案.pptx', source: '月度绩效', dept: '售前部', author: '张伟', time: '2026-02-24 10:15', month: '02', year: '2026' },
+    { name: '运营部-2月用户增长分析.pdf', source: '月度绩效', dept: '运营部', author: '孙丽', time: '2026-02-23 15:00', month: '02', year: '2026' },
+    { name: '财务部-2月费用报销汇总.xlsx', source: '月度绩效', dept: '财务部', author: '马芳', time: '2026-02-23 09:30', month: '02', year: '2026' },
+    { name: '人力资源部-新员工入职手册.pdf', source: '手动上传', dept: '人力资源部', author: '周敏', time: '2026-02-22 14:20', month: '02', year: '2026' },
+    { name: '产品中心-数据大屏设计稿.png', source: '月度绩效', dept: '产品中心', author: '王磊', time: '2026-02-21 11:00', month: '02', year: '2026' },
+    { name: '研发部-系统架构设计文档.pdf', source: '手动上传', dept: '研发部', author: '陈建', time: '2026-02-20 16:30', month: '02', year: '2026' },
+    { name: '售前部-1月市场调研报告.docx', source: '月度绩效', dept: '售前部', author: '李明', time: '2026-01-30 14:00', month: '01', year: '2026' },
+    { name: '交付中心-1月运维报告.pdf', source: '月度绩效', dept: '交付中心', author: '刘洋', time: '2026-01-28 17:30', month: '01', year: '2026' },
+    { name: '采购部-年度采购计划.xlsx', source: '手动上传', dept: '采购部', author: '李吉强', time: '2026-01-25 10:00', month: '01', year: '2026' },
+];
+
+// ===== 虚拟目录树 =====
+var dirTreeData = {
+    label: '月度绩效归档', icon: 'fa-archive', locked: true,
+    children: [
+        { label: '2026年', icon: 'fa-calendar-alt', children: [
+            { label: '03月', icon: 'fa-calendar-day', children: [
+                { label: '产品中心', icon: 'fa-building', dept: '产品中心', month: '03', year: '2026' },
+                { label: '交付中心', icon: 'fa-truck', dept: '交付中心', month: '03', year: '2026' },
+                { label: '研发部', icon: 'fa-code', dept: '研发部', month: '03', year: '2026' },
+                { label: '售前部', icon: 'fa-handshake', dept: '售前部', month: '03', year: '2026' },
+                { label: '运营部', icon: 'fa-bullhorn', dept: '运营部', month: '03', year: '2026' },
+                { label: '人力资源部', icon: 'fa-users', dept: '人力资源部', month: '03', year: '2026' },
+            ]},
+            { label: '02月', icon: 'fa-calendar-day', children: [
+                { label: '产品中心', icon: 'fa-building', dept: '产品中心', month: '02', year: '2026' },
+                { label: '交付中心', icon: 'fa-truck', dept: '交付中心', month: '02', year: '2026' },
+                { label: '研发部', icon: 'fa-code', dept: '研发部', month: '02', year: '2026' },
+                { label: '采购部', icon: 'fa-shopping-bag', dept: '采购部', month: '02', year: '2026' },
+                { label: '售前部', icon: 'fa-handshake', dept: '售前部', month: '02', year: '2026' },
+                { label: '运营部', icon: 'fa-bullhorn', dept: '运营部', month: '02', year: '2026' },
+                { label: '财务部', icon: 'fa-calculator', dept: '财务部', month: '02', year: '2026' },
+                { label: '人力资源部', icon: 'fa-users', dept: '人力资源部', month: '02', year: '2026' },
+            ]},
+            { label: '01月', icon: 'fa-calendar-day', children: [
+                { label: '售前部', icon: 'fa-handshake', dept: '售前部', month: '01', year: '2026' },
+                { label: '交付中心', icon: 'fa-truck', dept: '交付中心', month: '01', year: '2026' },
+                { label: '采购部', icon: 'fa-shopping-bag', dept: '采购部', month: '01', year: '2026' },
+            ]},
+        ]},
+    ]
+};
+
+var currentFilter = { source: 'all', dept: 'all', treeFilter: null };
+var activeTreeNode = null;
+
+function renderDirTree() {
+    var container = document.getElementById('dirTree');
+    container.innerHTML = buildTreeHtml(dirTreeData, 0, 'root');
+    var allBtn = '<div class="tree-node flex items-center gap-2 px-3 py-1.5 rounded-md mb-1 active" data-path="all" onclick="clickTreeNode(this,null)">' +
+        '<i class="fas fa-folder-open text-yellow-500 text-xs"></i>' +
+        '<span>全部文档</span>' +
+        '<span class="ml-auto text-xs text-gray-400">' + mockDocs.length + '</span></div>';
+    container.innerHTML = allBtn + container.innerHTML;
+    activeTreeNode = container.querySelector('[data-path="all"]');
+}
+
+function buildTreeHtml(node, depth, path) {
+    var indent = depth * 16;
+    var hasChildren = node.children && node.children.length > 0;
+    var arrow = hasChildren ? '<i class="fas fa-chevron-down text-[10px] text-gray-400 tree-arrow transition-transform duration-200"></i>' : '<span class="w-3"></span>';
+    var lockIcon = node.locked ? ' <i class="fas fa-lock text-[9px] text-gray-300 ml-1"></i>' : '';
+    var count = '';
+    if (node.dept) {
+        var c = mockDocs.filter(function(d) { return d.dept === node.dept && d.month === node.month && d.year === node.year; }).length;
+        count = '<span class="ml-auto text-xs text-gray-400">' + c + '</span>';
+    }
+    var html = '<div class="tree-node flex items-center gap-1.5 px-3 py-1.5 rounded-md" style="padding-left:' + (12 + indent) + 'px" data-path="' + path + '"' +
+        (node.dept ? ' data-dept="' + node.dept + '" data-month="' + node.month + '" data-year="' + node.year + '"' : '') +
+        ' onclick="clickTreeNode(this,' + (node.dept ? '\'' + node.dept + '_' + node.month + '_' + node.year + '\'' : 'null') + ')">' +
+        arrow +
+        '<i class="fas ' + node.icon + ' text-xs ' + (depth === 0 ? 'text-primary' : depth === 1 ? 'text-blue-400' : depth === 2 ? 'text-green-500' : 'text-gray-400') + '"></i>' +
+        '<span class="text-xs truncate">' + node.label + lockIcon + '</span>' +
+        count + '</div>';
+    if (hasChildren) {
+        html += '<div class="tree-children">';
+        node.children.forEach(function(child, i) {
+            html += buildTreeHtml(child, depth + 1, path + '_' + i);
+        });
+        html += '</div>';
+    }
+    return html;
+}
+
+function clickTreeNode(el, filter) {
+    document.querySelectorAll('.tree-node').forEach(function(n) { n.classList.remove('active'); });
+    el.classList.add('active');
+    activeTreeNode = el;
+
+    var arrow = el.querySelector('.tree-arrow');
+    var children = el.nextElementSibling;
+    if (arrow && children && children.classList.contains('tree-children')) {
+        var isHidden = children.style.display === 'none';
+        children.style.display = isHidden ? '' : 'none';
+        arrow.style.transform = isHidden ? '' : 'rotate(-90deg)';
+    }
+
+    if (filter) {
+        var parts = filter.split('_');
+        currentFilter.treeFilter = { dept: parts[0], month: parts[1], year: parts[2] };
+        document.getElementById('currentFolderTitle').innerHTML = '<i class="fas fa-folder-open mr-1 text-yellow-500"></i>' + parts[0] + ' - ' + parts[2] + '年' + parts[1] + '月';
+        document.getElementById('breadcrumbCurrent').textContent = 'AI文档管理 / 月度绩效归档 / ' + parts[2] + '年 / ' + parts[1] + '月 / ' + parts[0];
+    } else {
+        currentFilter.treeFilter = null;
+        document.getElementById('currentFolderTitle').innerHTML = '<i class="fas fa-folder-open mr-1 text-yellow-500"></i>全部文档';
+        document.getElementById('breadcrumbCurrent').textContent = 'AI文档管理';
+    }
+    renderDocTable();
+}
+
+function collapseAll() {
+    document.querySelectorAll('.tree-children').forEach(function(c) { c.style.display = 'none'; });
+    document.querySelectorAll('.tree-arrow').forEach(function(a) { a.style.transform = 'rotate(-90deg)'; });
+}
+
+// ===== 文档表格 =====
+function getFilteredDocs() {
+    var docs = mockDocs.slice();
+    if (currentFilter.source !== 'all') docs = docs.filter(function(d) { return d.source === currentFilter.source; });
+    if (currentFilter.dept !== 'all') docs = docs.filter(function(d) { return d.dept === currentFilter.dept; });
+    if (currentFilter.treeFilter) {
+        docs = docs.filter(function(d) {
+            return d.dept === currentFilter.treeFilter.dept && d.month === currentFilter.treeFilter.month && d.year === currentFilter.treeFilter.year;
+        });
+    }
+    return docs;
+}
+
+function renderDocTable() {
+    var docs = getFilteredDocs();
+    var tbody = document.getElementById('docTableBody');
+    document.getElementById('docCount').textContent = '共 ' + docs.length + ' 个文件';
+    document.getElementById('paginationInfo').textContent = '显示 1-' + Math.min(docs.length, 15) + ' / 共 ' + docs.length + ' 条';
+    if (docs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-gray-400"><i class="fas fa-inbox text-3xl mb-2 block"></i>暂无文档</td></tr>';
+        return;
+    }
+    tbody.innerHTML = docs.slice(0, 15).map(function(doc) {
+        var fi = getFileInfo(doc.name);
+        return '<tr class="doc-row border-b border-gray-50">' +
+            '<td class="px-4 py-3"><div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg ' + fi.bg + ' flex items-center justify-center flex-shrink-0"><i class="fas ' + fi.icon + ' ' + fi.color + ' text-sm"></i></div><span class="text-sm text-gray-800 hover:text-primary cursor-pointer truncate max-w-xs" onclick="previewFile(\'' + doc.name.replace(/'/g, "\\'") + '\')">' + doc.name + '</span></div></td>' +
+            '<td class="px-4 py-3">' + srcTag(doc.source) + '</td>' +
+            '<td class="px-4 py-3 text-xs text-gray-600">' + doc.dept + '</td>' +
+            '<td class="px-4 py-3 text-xs text-gray-500">' + doc.author + '</td>' +
+            '<td class="px-4 py-3 text-xs text-gray-400">' + doc.time + '</td>' +
+            '<td class="px-4 py-3 text-center"><div class="flex items-center justify-center gap-3">' +
+                '<button class="op-btn text-gray-400 text-xs" onclick="previewFile(\'' + doc.name.replace(/'/g, "\\'") + '\')"><i class="fas fa-eye"></i> 预览</button>' +
+                '<button class="op-btn text-gray-400 text-xs" onclick="alert(\'下载功能演示中...\')"><i class="fas fa-download"></i> 下载</button>' +
+                '<button class="op-btn text-gray-400 text-xs" onclick="alert(\'权限修改功能演示中...\')"><i class="fas fa-lock"></i> 权限</button>' +
+            '</div></td>' +
+        '</tr>';
+    }).join('');
+}
+
+function filterBySource(v) { currentFilter.source = v; renderDocTable(); }
+function filterByDept(v) { currentFilter.dept = v; renderDocTable(); }
+
+// ===== 文件预览 =====
+function previewFile(name) {
+    var fi = getFileInfo(name);
+    document.getElementById('previewTitle').textContent = name;
+    document.getElementById('previewContent').innerHTML =
+        '<div class="w-20 h-20 mx-auto rounded-xl ' + fi.bg + ' flex items-center justify-center mb-4"><i class="fas ' + fi.icon + ' text-3xl ' + fi.color + '"></i></div>' +
+        '<p class="text-base font-medium text-gray-700 mb-2">' + name + '</p>' +
+        '<p class="text-sm text-gray-400 mb-6">文件预览功能演示中，实际环境将支持在线预览 PDF / Word / 图片 / 视频等格式</p>' +
+        '<div class="flex justify-center gap-3"><button class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600" onclick="alert(\'下载功能演示中...\')"><i class="fas fa-download mr-1"></i>下载文件</button><button class="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-primary hover:text-primary" onclick="closePreview()">关闭</button></div>';
+    var modal = document.getElementById('previewModal');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+}
+function closePreview(e) {
+    if (e && e.target !== document.getElementById('previewModal')) return;
+    var modal = document.getElementById('previewModal');
+    modal.classList.add('hidden');
+    modal.style.display = '';
+}
+
+// ===== AI搜索 =====
+function doAiSearch() {
+    var input = document.getElementById('aiSearchInput');
+    var query = input.value.trim();
+    if (!query) return;
+    var resultDiv = document.getElementById('aiSearchResult');
+    resultDiv.classList.remove('hidden');
+
+    var matched = mockDocs.filter(function(d) {
+        return d.name.includes(query) || d.dept.includes(query) || d.author.includes(query) || d.source.includes(query);
+    });
+
+    if (matched.length > 0) {
+        resultDiv.innerHTML =
+            '<div class="flex items-center gap-2 mb-3"><div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-[10px]"><i class="fas fa-robot"></i></div><span class="text-sm text-gray-600">找到 <strong>' + matched.length + '</strong> 个相关文档：</span></div>' +
+            '<div class="space-y-2">' + matched.slice(0, 5).map(function(doc) {
+                var fi = getFileInfo(doc.name);
+                return '<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-blue-50 cursor-pointer transition-colors" onclick="previewFile(\'' + doc.name.replace(/'/g, "\\'") + '\')">' +
+                    '<div class="w-8 h-8 rounded ' + fi.bg + ' flex items-center justify-center"><i class="fas ' + fi.icon + ' ' + fi.color + ' text-sm"></i></div>' +
+                    '<div class="flex-1 min-w-0"><div class="text-sm text-gray-800 truncate">' + doc.name + '</div><div class="text-xs text-gray-400">' + doc.dept + ' · ' + doc.author + ' · ' + doc.time + '</div></div>' +
+                    srcTag(doc.source) + '</div>';
+            }).join('') + '</div>';
+    } else {
+        resultDiv.innerHTML =
+            '<div class="flex items-start gap-2"><div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-[10px] flex-shrink-0 mt-0.5"><i class="fas fa-robot"></i></div><div class="bg-gray-50 rounded-xl rounded-tl-none px-4 py-3 text-sm text-gray-600">抱歉，未找到与"' + query + '"相关的文档。您可以尝试更换关键词，或联系对应部门确认文件是否已提交。</div></div>';
+    }
+}
+
+// ===== AI对话 =====
+function sendAiChat() {
+    var input = document.getElementById('aiChatInput');
+    var text = input.value.trim();
+    if (!text) return;
+    var container = document.getElementById('aiChatMessages');
+    container.innerHTML += '<div class="flex gap-2 justify-end"><div class="bg-primary text-white rounded-xl rounded-tr-none px-4 py-2.5 text-sm max-w-xs">' + text + '</div><div class="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs flex-shrink-0">高</div></div>';
+    input.value = '';
+
+    var matched = mockDocs.filter(function(d) { return d.name.includes(text) || d.dept.includes(text) || d.author.includes(text); });
+    setTimeout(function() {
+        var reply = '';
+        if (matched.length > 0) {
+            reply = '<div class="text-sm text-gray-700 mb-2">为您找到 ' + matched.length + ' 个相关文档：</div>' +
+                matched.slice(0, 3).map(function(doc) {
+                    var fi = getFileInfo(doc.name);
+                    return '<div class="flex items-center gap-2 p-2 bg-white rounded-lg mt-1 text-xs"><div class="w-6 h-6 rounded ' + fi.bg + ' flex items-center justify-center"><i class="fas ' + fi.icon + ' ' + fi.color + '"></i></div><span class="truncate flex-1">' + doc.name + '</span></div>';
+                }).join('');
+        } else {
+            reply = '<div class="text-sm text-gray-700">抱歉，未找到与"' + text + '"相关的文档。请尝试其他关键词，或联系相关部门确认文件是否已提交归档。</div>';
+        }
+        container.innerHTML += '<div class="flex gap-2"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs flex-shrink-0"><i class="fas fa-robot"></i></div><div class="bg-gray-100 rounded-xl rounded-tl-none px-4 py-2.5 max-w-xs">' + reply + '</div></div>';
+        container.scrollTop = container.scrollHeight;
+    }, 600);
+}
+
+function closeAiChat(e) {
+    if (e && e.target !== document.getElementById('aiChatModal')) return;
+    document.getElementById('aiChatModal').classList.add('hidden');
+    document.getElementById('aiChatModal').style.display = '';
+}
+
+// ===== 侧边栏子菜单展开 =====
+function toggleSubMenu(el) {
+    var sub = el.nextElementSibling;
+    var arrow = el.querySelector('.fa-chevron-down');
+    if (sub) {
+        sub.classList.toggle('hidden');
+        if (arrow) arrow.style.transform = sub.classList.contains('hidden') ? '' : 'rotate(180deg)';
+    }
+}
+
+// ===== 初始化 =====
+renderDirTree();
+renderDocTable();
+</script>
+</body>
+</html>

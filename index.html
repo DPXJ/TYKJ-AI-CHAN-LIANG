@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>移动端产品原型演示</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome 图标库：优先 jsDelivr，国内访问更稳定 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/yield-agent.css">
     <link rel="stylesheet" href="yield-prediction-styles.css">
@@ -106,6 +108,18 @@
                         <i class="fas fa-user"></i>
                         <span>我的</span>
                     </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-item main-item clickable-main" data-page="docPerformance" onclick="loadPage('docPerformance')">
+                        <i class="fas fa-folder-open"></i>
+                        <span>文件管理系统</span>
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <a class="nav-item main-item" href="doc-management.html" target="_blank" style="text-decoration:none;color:inherit;">
+                        <i class="fas fa-desktop"></i>
+                        <span>PC端文档管理</span>
+                    </a>
                 </div>
                 <div class="nav-section">
                     <a class="nav-item main-item" href="admin.html" target="_blank" style="text-decoration:none;color:inherit;">

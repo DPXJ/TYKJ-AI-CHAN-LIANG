@@ -5276,6 +5276,138 @@ const pageData = {
                 </button>
             </div>
         `
+    },
+
+    // ===== 文件管理模块 - H5移动端 =====
+    docPerformance: {
+        title: '绩效文档',
+        subtitle: '月度绩效文档管理',
+        content: `
+            <div class="mobile-page doc-perf-page">
+                <div class="mobile-header doc-header">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+                    <h1 class="header-title-center">文件管理系统</h1>
+                    <div class="doc-header-spacer"></div>
+                </div>
+                <div class="mobile-content doc-module-content">
+                    <div class="doc-month-slider">
+                        <div class="doc-month-item" onclick="switchDocMonth(this,'01')">2026-01</div>
+                        <div class="doc-month-item" onclick="switchDocMonth(this,'02')">2026-02</div>
+                        <div class="doc-month-item active" onclick="switchDocMonth(this,'03')">2026-03</div>
+                        <div class="doc-month-item" onclick="switchDocMonth(this,'04')">2026-04</div>
+                    </div>
+                    <div class="doc-stat-row">
+                        <div class="doc-stat-mini">
+                            <div class="doc-stat-num">47</div>
+                            <div class="doc-stat-label">本月文档</div>
+                        </div>
+                        <div class="doc-stat-mini">
+                            <div class="doc-stat-num">6</div>
+                            <div class="doc-stat-label">已归档部门</div>
+                        </div>
+                        <div class="doc-stat-mini warn">
+                            <div class="doc-stat-num">2</div>
+                            <div class="doc-stat-label">待归档</div>
+                        </div>
+                    </div>
+                    <div class="doc-section-title">部门文档概览</div>
+                    <div id="docDeptCards" class="doc-dept-grid"></div>
+                </div>
+                <div class="doc-bottom-nav">
+                    <div class="doc-nav-item active" onclick="loadPage('docPerformance')"><i class="fas fa-file-alt"></i><span>绩效文档</span></div>
+                    <div class="doc-nav-item center" onclick="loadPage('docAiSearch')"><i class="fas fa-robot"></i><span>AI 搜索</span></div>
+                    <div class="doc-nav-item" onclick="loadPage('docAllFiles')"><i class="fas fa-folder"></i><span>全部文件</span></div>
+                </div>
+            </div>
+        `
+    },
+
+    docDeptDetail: {
+        title: '部门文档',
+        subtitle: '部门文档列表',
+        content: `
+            <div class="mobile-page doc-dept-detail-page">
+                <div class="mobile-header doc-header">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+                    <h1 id="docDeptTitle" class="header-title-center">部门文档</h1>
+                    <div class="doc-header-spacer"></div>
+                </div>
+                <div class="mobile-content doc-module-content">
+                    <div id="docDeptFileList" class="doc-file-list"></div>
+                </div>
+                <div class="doc-bottom-nav">
+                    <div class="doc-nav-item active" onclick="loadPage('docPerformance')"><i class="fas fa-file-alt"></i><span>绩效文档</span></div>
+                    <div class="doc-nav-item center" onclick="loadPage('docAiSearch')"><i class="fas fa-robot"></i><span>AI 搜索</span></div>
+                    <div class="doc-nav-item" onclick="loadPage('docAllFiles')"><i class="fas fa-folder"></i><span>全部文件</span></div>
+                </div>
+            </div>
+        `
+    },
+
+    docAiSearch: {
+        title: 'AI搜索',
+        subtitle: 'AI智能文档检索',
+        content: `
+            <div class="mobile-page doc-ai-search-page">
+                <div class="mobile-header doc-header">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+                    <h1 class="header-title-center">AI 文档搜索</h1>
+                    <div class="doc-header-spacer"></div>
+                </div>
+                <div class="mobile-content doc-module-content doc-chat-content" id="docAiChatArea">
+                    <div class="doc-ai-welcome">
+                        <div class="doc-ai-avatar"><i class="fas fa-robot"></i></div>
+                        <div class="doc-ai-bubble">
+                            您好！我是AI文档助手，可以帮您快速查找公司文档。<br>
+                            试试说：<br>
+                            · "上个月售前的方案"<br>
+                            · "采购部3月提交的文件"<br>
+                            · "产品路线图"
+                        </div>
+                    </div>
+                </div>
+                <div class="doc-chat-input-bar">
+                    <button class="doc-voice-btn" onclick="showNotification('语音输入功能演示中...','info')"><i class="fas fa-microphone"></i></button>
+                    <input type="text" id="docAiInput" class="doc-chat-input" placeholder="输入您想查找的文档..." onkeydown="if(event.key==='Enter') sendDocAiQuery()">
+                    <button class="doc-send-btn" onclick="sendDocAiQuery()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div class="doc-bottom-nav">
+                    <div class="doc-nav-item" onclick="loadPage('docPerformance')"><i class="fas fa-file-alt"></i><span>绩效文档</span></div>
+                    <div class="doc-nav-item center active" onclick="loadPage('docAiSearch')"><i class="fas fa-robot"></i><span>AI 搜索</span></div>
+                    <div class="doc-nav-item" onclick="loadPage('docAllFiles')"><i class="fas fa-folder"></i><span>全部文件</span></div>
+                </div>
+            </div>
+        `
+    },
+
+    docAllFiles: {
+        title: '全部文件',
+        subtitle: '公司文件夹管理',
+        content: `
+            <div class="mobile-page doc-all-files-page">
+                <div class="mobile-header doc-header doc-header-actions">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+                    <h1 class="header-title-center">全部文件</h1>
+                    <div class="doc-header-actions-right">
+                        <button type="button" class="doc-header-action-btn" onclick="showNotification('上传文件功能演示中…','info')" title="上传文件"><i class="fas fa-upload"></i><span>上传</span></button>
+                        <button type="button" class="doc-header-action-btn" onclick="showNotification('新建文件夹功能演示中…','info')" title="新建文件夹"><i class="fas fa-folder-plus"></i><span>新建</span></button>
+                        <button type="button" class="doc-header-action-btn" onclick="showNotification('权限管理功能演示中…','info')" title="权限"><i class="fas fa-lock"></i><span>权限</span></button>
+                    </div>
+                </div>
+                <div class="mobile-content doc-module-content">
+                    <div class="doc-search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="搜索文件名..." oninput="filterDocAllFiles(this.value)">
+                    </div>
+                    <div id="docAllFileTree" class="doc-file-tree"></div>
+                </div>
+                <div class="doc-bottom-nav">
+                    <div class="doc-nav-item" onclick="loadPage('docPerformance')"><i class="fas fa-file-alt"></i><span>绩效文档</span></div>
+                    <div class="doc-nav-item center" onclick="loadPage('docAiSearch')"><i class="fas fa-robot"></i><span>AI 搜索</span></div>
+                    <div class="doc-nav-item active" onclick="loadPage('docAllFiles')"><i class="fas fa-folder"></i><span>全部文件</span></div>
+                </div>
+            </div>
+        `
     }
 };
 let currentPage = 'home';
@@ -6302,6 +6434,20 @@ function loadPage(pageName, param, options) {
                 renderExpertMsgTarget(param);
             }, 50);
         }
+        
+        // 文件管理模块页面初始化
+        if (pageName === 'docPerformance') {
+            setTimeout(() => { renderDocDeptCards('03'); }, 50);
+        }
+        if (pageName === 'docDeptDetail' && param) {
+            setTimeout(() => { renderDocDeptFileList(param); }, 50);
+        }
+        if (pageName === 'docAiSearch') {
+            setTimeout(() => { initDocAiDemo(); }, 300);
+        }
+        if (pageName === 'docAllFiles') {
+            setTimeout(() => { renderDocAllFileTree(); }, 50);
+        }
     }
 }
 
@@ -6313,8 +6459,9 @@ function ensureTabbar(pageName) {
 
         // AI相关页面(新三段式：智能体广场/AI对话/我的订阅 以及 旧AI页)不插入全局5项tabbar
         const isAIFourMenuPage = ['agentMarket','aiChatCenter','mySubscriptions','aiNewChat','expertRecommend','historyDialog','aiDiagnosis','pestDetect'].includes(pageName);
-        // 若页面内不存在通用 tabbar，则插入（非AI四菜单页）
-        if (!isAIFourMenuPage && !pageEl.querySelector('.mobile-footer.tabbar')) {
+        const isDocPage = ['docPerformance','docAiSearch','docAllFiles','docDeptDetail'].includes(pageName);
+        // 若页面内不存在通用 tabbar，则插入（非AI四菜单页，非文档管理页）
+        if (!isAIFourMenuPage && !isDocPage && !pageEl.querySelector('.mobile-footer.tabbar')) {
             // 确保weather-report-page使用flex布局
             if (pageName === 'weatherReport') {
                 pageEl.classList.add('weather-report-page');
@@ -6338,6 +6485,7 @@ function ensureTabbar(pageName) {
             if (name === 'newsList' || name === 'newsDetail') return 'home';
             if (name === 'expertRanking' || name === 'expertMessageSend' || name === 'messages') return 'home';
             if (name === 'myExpertMessages') return 'profile';
+            if (['docPerformance','docAiSearch','docAllFiles','docDeptDetail'].includes(name)) return 'home';
             // 新AI三段式页面在全局tabbar上归为 AI
             if (['agentMarket','aiChatCenter','mySubscriptions','aiNewChat','expertRecommend','historyDialog','aiDiagnosis','wheatPriceAgent','cornPriceAgent','soyPriceAgent'].includes(name)) return 'ai';
             return name;
@@ -6382,8 +6530,14 @@ function updateNavigationState(pageName) {
         item.classList.remove('active');
     });
     
+    // 文件管理相关页面统一映射到 docPerformance 导航项
+    var navPageName = pageName;
+    if (['docPerformance','docAiSearch','docAllFiles','docDeptDetail'].includes(pageName)) {
+        navPageName = 'docPerformance';
+    }
+    
     // 设置当前页面的活动状态
-    const activeItem = document.querySelector(`[data-page="${pageName}"]`);
+    const activeItem = document.querySelector(`[data-page="${navPageName}"]`);
     if (activeItem) {
         activeItem.classList.add('active');
         
@@ -16106,4 +16260,366 @@ function switchMsgTab(el, type) {
             item.style.display = item.getAttribute('data-type') === type ? '' : 'none';
         }
     });
+}
+
+// ===== 文件管理模块 (H5) =====
+var docMockData = [
+    { name: '2026年3月-售前业务支持文档.pdf', dept: '售前部', author: '张伟', time: '03-05', month: '03', type: 'pdf' },
+    { name: '采购部-Q1供应商评审表.xlsx', dept: '采购部', author: '李吉强', time: '03-04', month: '03', type: 'xlsx' },
+    { name: '云农谷"AI+农业"方案初稿.docx', dept: '产品中心', author: '王磊', time: '03-04', month: '03', type: 'docx' },
+    { name: '3月售前客户拜访计划.pdf', dept: '售前部', author: '张伟', time: '03-03', month: '03', type: 'pdf' },
+    { name: '交付中心-项目验收报告模板.docx', dept: '交付中心', author: '刘洋', time: '03-03', month: '03', type: 'docx' },
+    { name: '研发部-3月代码审查报告.pdf', dept: '研发部', author: '陈建', time: '03-03', month: '03', type: 'pdf' },
+    { name: '产品中心-需求评审会议纪要.docx', dept: '产品中心', author: '赵婷', time: '03-02', month: '03', type: 'docx' },
+    { name: '运营部-3月社群运营周报.pptx', dept: '运营部', author: '孙丽', time: '03-02', month: '03', type: 'pptx' },
+    { name: '人力资源部-3月招聘进展.xlsx', dept: '人力资源部', author: '周敏', time: '03-01', month: '03', type: 'xlsx' },
+    { name: '售前部-智慧农业解决方案V2.pptx', dept: '售前部', author: '张伟', time: '03-01', month: '03', type: 'pptx' },
+    { name: '产品中心-竞品分析报告.pdf', dept: '产品中心', author: '王磊', time: '03-01', month: '03', type: 'pdf' },
+    { name: '交付中心-客户培训手册.docx', dept: '交付中心', author: '刘洋', time: '02-28', month: '02', type: 'docx' },
+    { name: '研发部-API接口文档V3.pdf', dept: '研发部', author: '陈建', time: '02-28', month: '02', type: 'pdf' },
+    { name: '运营部-短视频脚本策划.mp4', dept: '运营部', author: '孙丽', time: '02-27', month: '02', type: 'mp4' },
+    { name: '产品中心-产品路线图2026.pptx', dept: '产品中心', author: '赵婷', time: '02-26', month: '02', type: 'pptx' },
+    { name: '交付中心-2月项目交付总结.pdf', dept: '交付中心', author: '刘洋', time: '02-25', month: '02', type: 'pdf' },
+    { name: '研发部-2月技术分享PPT.pptx', dept: '研发部', author: '陈建', time: '02-25', month: '02', type: 'pptx' },
+    { name: '采购部-供应商资质审核表.xlsx', dept: '采购部', author: '李吉强', time: '02-24', month: '02', type: 'xlsx' },
+    { name: '售前部-云农谷平台演示方案.pptx', dept: '售前部', author: '张伟', time: '02-24', month: '02', type: 'pptx' },
+    { name: '财务部-2月费用报销汇总.xlsx', dept: '财务部', author: '马芳', time: '02-23', month: '02', type: 'xlsx' },
+    { name: '售前部-1月市场调研报告.docx', dept: '售前部', author: '李明', time: '01-30', month: '01', type: 'docx' },
+    { name: '交付中心-1月运维报告.pdf', dept: '交付中心', author: '刘洋', time: '01-28', month: '01', type: 'pdf' },
+    { name: '采购部-年度采购计划.xlsx', dept: '采购部', author: '李吉强', time: '01-25', month: '01', type: 'xlsx' },
+];
+
+var docDeptColors = {
+    '产品中心': '#1890ff', '交付中心': '#52c41a', '研发部': '#722ed1',
+    '采购部': '#fa8c16', '售前部': '#eb2f96', '财务部': '#13c2c2',
+    '运营部': '#faad14', '人力资源部': '#2f54eb'
+};
+var docDeptIcons = {
+    '产品中心': 'fa-lightbulb', '交付中心': 'fa-truck', '研发部': 'fa-code',
+    '采购部': 'fa-shopping-bag', '售前部': 'fa-handshake', '财务部': 'fa-calculator',
+    '运营部': 'fa-bullhorn', '人力资源部': 'fa-users'
+};
+var docFileIcons = {
+    pdf: { icon: 'fa-file-pdf', color: '#e74c3c' },
+    docx: { icon: 'fa-file-word', color: '#2980b9' },
+    doc: { icon: 'fa-file-word', color: '#2980b9' },
+    xlsx: { icon: 'fa-file-excel', color: '#27ae60' },
+    xls: { icon: 'fa-file-excel', color: '#27ae60' },
+    pptx: { icon: 'fa-file-powerpoint', color: '#e67e22' },
+    ppt: { icon: 'fa-file-powerpoint', color: '#e67e22' },
+    mp4: { icon: 'fa-file-video', color: '#8e44ad' },
+    png: { icon: 'fa-file-image', color: '#9b59b6' },
+    jpg: { icon: 'fa-file-image', color: '#9b59b6' },
+};
+
+window._docCurrentMonth = '03';
+
+function renderDocDeptCards(month) {
+    window._docCurrentMonth = month;
+    var container = document.getElementById('docDeptCards');
+    if (!container) return;
+    var depts = {};
+    docMockData.filter(function(d) { return d.month === month; }).forEach(function(d) {
+        if (!depts[d.dept]) depts[d.dept] = 0;
+        depts[d.dept]++;
+    });
+    var keys = Object.keys(depts);
+    if (keys.length === 0) {
+        container.innerHTML = '<div class="doc-empty"><i class="fas fa-inbox"></i><p>该月份暂无归档文档</p></div>';
+        return;
+    }
+    container.innerHTML = keys.map(function(dept) {
+        var color = docDeptColors[dept] || '#999';
+        var icon = docDeptIcons[dept] || 'fa-building';
+        return '<div class="doc-dept-card" onclick="loadPage(\'docDeptDetail\',\'' + dept + '_' + month + '\')" style="border-left:3px solid ' + color + '">' +
+            '<div class="doc-dept-icon" style="background:' + color + '15;color:' + color + '"><i class="fas ' + icon + '"></i></div>' +
+            '<div class="doc-dept-info"><div class="doc-dept-name">' + dept + '</div><div class="doc-dept-count">' + depts[dept] + ' 个文档</div></div>' +
+            '<i class="fas fa-chevron-right doc-dept-arrow"></i></div>';
+    }).join('');
+}
+
+function switchDocMonth(el, month) {
+    document.querySelectorAll('.doc-month-item').forEach(function(m) { m.classList.remove('active'); });
+    el.classList.add('active');
+    var docs = docMockData.filter(function(d) { return d.month === month; });
+    var depts = {};
+    docs.forEach(function(d) { depts[d.dept] = 1; });
+    var statNums = document.querySelectorAll('.doc-stat-num');
+    if (statNums[0]) statNums[0].textContent = docs.length;
+    if (statNums[1]) statNums[1].textContent = Object.keys(depts).length;
+    renderDocDeptCards(month);
+}
+
+function renderDocDeptFileList(param) {
+    var parts = param.split('_');
+    var dept = parts[0], month = parts[1];
+    var titleEl = document.getElementById('docDeptTitle');
+    if (titleEl) titleEl.textContent = dept + ' - ' + month + '月';
+    var container = document.getElementById('docDeptFileList');
+    if (!container) return;
+    var files = docMockData.filter(function(d) { return d.dept === dept && d.month === month; });
+    if (files.length === 0) {
+        container.innerHTML = '<div class="doc-empty"><i class="fas fa-inbox"></i><p>暂无文档</p></div>';
+        return;
+    }
+    container.innerHTML = files.map(function(f) {
+        var fi = docFileIcons[f.type] || { icon: 'fa-file', color: '#999' };
+        var safeName = (f.name || '').replace(/"/g, '&quot;');
+        return '<div class="doc-file-item" data-name="' + safeName + '" data-type="' + (f.type || 'pdf') + '" data-author="' + (f.author || '') + '" data-time="' + (f.time || '') + '">' +
+            '<div class="doc-file-icon" style="color:' + fi.color + '"><i class="fas ' + fi.icon + '"></i></div>' +
+            '<div class="doc-file-info"><div class="doc-file-name">' + f.name + '</div><div class="doc-file-meta">' + f.author + ' · ' + f.time + '</div></div>' +
+            '<div class="doc-file-actions">' +
+            '<button type="button" class="doc-btn doc-btn-preview" onclick="event.stopPropagation(); openDocPreview(this.closest(\'.doc-file-item\'))">预览</button>' +
+            '<button type="button" class="doc-btn doc-btn-download" onclick="event.stopPropagation(); docDownloadFromList(this.closest(\'.doc-file-item\'))">下载</button>' +
+            '</div></div>';
+    }).join('');
+}
+
+function sendDocAiQuery() {
+    var input = document.getElementById('docAiInput');
+    if (!input) return;
+    var text = input.value.trim();
+    if (!text) return;
+    var area = document.getElementById('docAiChatArea');
+    area.innerHTML += '<div class="doc-ai-user-msg"><div class="doc-ai-user-bubble">' + text + '</div></div>';
+    input.value = '';
+    var matched = docMockData.filter(function(d) { return d.name.indexOf(text) >= 0 || d.dept.indexOf(text) >= 0 || d.author.indexOf(text) >= 0; });
+    setTimeout(function() {
+        var reply = '';
+        if (matched.length > 0) {
+            reply = '<div class="doc-ai-bubble">为您找到 ' + matched.length + ' 个相关文档：</div>' +
+                '<div class="doc-ai-results">' + matched.slice(0, 4).map(function(f) {
+                    var fi = docFileIcons[f.type] || { icon: 'fa-file', color: '#999' };
+                    var safeName = (f.name || '').replace(/"/g, '&quot;');
+                    return '<div class="doc-ai-result-card" data-name="' + safeName + '" data-type="' + (f.type || 'pdf') + '" data-author="' + (f.author || '') + '" data-time="' + (f.time || '') + '">' +
+                        '<i class="fas ' + fi.icon + '" style="color:' + fi.color + '"></i><span>' + f.name + '</span>' +
+                        '<div class="doc-ai-card-actions">' +
+                        '<button type="button" class="doc-btn-text" onclick="openDocPreview(this.closest(\'.doc-ai-result-card\'))">预览</button>' +
+                        '<button type="button" class="doc-btn-text" onclick="docDownloadFromList(this.closest(\'.doc-ai-result-card\'))">下载</button>' +
+                        '</div></div>';
+                }).join('') + '</div>';
+        } else {
+            reply = '<div class="doc-ai-bubble">抱歉，未找到与"' + text + '"相关的文档。请尝试更换关键词。</div>';
+        }
+        area.innerHTML += '<div class="doc-ai-bot-msg"><div class="doc-ai-avatar"><i class="fas fa-robot"></i></div>' + reply + '</div>';
+        area.scrollTop = area.scrollHeight;
+    }, 500);
+}
+
+function renderDocAllFileTree() {
+    var container = document.getElementById('docAllFileTree');
+    if (!container) return;
+    var files03 = docMockData.filter(function(d){ return d.month === '03'; });
+    var files02 = docMockData.filter(function(d){ return d.month === '02'; });
+    var files01 = docMockData.filter(function(d){ return d.month === '01'; });
+    var tree = [
+        { label: '月度绩效归档', icon: 'fa-archive', locked: true, children: [
+            { label: '2026年', icon: 'fa-calendar-alt', children: [
+                { label: '03月', icon: 'fa-calendar-day', count: files03.length, fileChildren: files03 },
+                { label: '02月', icon: 'fa-calendar-day', count: files02.length, fileChildren: files02 },
+                { label: '01月', icon: 'fa-calendar-day', count: files01.length, fileChildren: files01 },
+            ]},
+        ]},
+        { label: '公司公共文档', icon: 'fa-folder', children: [
+            { label: '制度规范', icon: 'fa-gavel', count: 8 },
+            { label: '培训资料', icon: 'fa-chalkboard-teacher', count: 12 },
+            { label: '品牌素材', icon: 'fa-palette', count: 6 },
+        ]},
+        { label: '团队共享文档', icon: 'fa-users', children: [
+            { label: '产品中心', icon: 'fa-lightbulb', count: 15 },
+            { label: '研发部', icon: 'fa-code', count: 22 },
+            { label: '售前部', icon: 'fa-handshake', count: 9 },
+        ]},
+    ];
+    container.innerHTML = tree.map(function(node) { return buildDocTreeNode(node, 0); }).join('');
+}
+
+function buildDocTreeNode(node, depth) {
+    if (node.type === 'file') {
+        return buildDocTreeFileRow(node, depth);
+    }
+    var indent = depth * 20;
+    var fileChildren = node.fileChildren || [];
+    var folderChildren = node.children || [];
+    var hasChildren = folderChildren.length > 0 || fileChildren.length > 0;
+    var lockHtml = node.locked ? ' <i class="fas fa-lock" style="font-size:9px;color:#ccc;margin-left:4px"></i>' : '';
+    var countHtml = node.count ? '<span class="doc-tree-count">' + node.count + '</span>' : '';
+    var arrowHtml = hasChildren ? '<i class="fas fa-chevron-down doc-tree-arrow"></i>' : '';
+    var html = '<div class="doc-tree-node" style="padding-left:' + (12 + indent) + 'px" onclick="toggleDocTreeNode(this)">' +
+        arrowHtml +
+        '<i class="fas ' + node.icon + ' doc-tree-icon"></i>' +
+        '<span class="doc-tree-label">' + node.label + lockHtml + '</span>' +
+        countHtml + '</div>';
+    if (hasChildren) {
+        html += '<div class="doc-tree-children">';
+        folderChildren.forEach(function(child) { html += buildDocTreeNode(child, depth + 1); });
+        fileChildren.forEach(function(f) { html += buildDocTreeFileRow(f, depth + 1); });
+        html += '</div>';
+    }
+    return html;
+}
+
+function buildDocTreeFileRow(f, depth) {
+    var fi = docFileIcons[f.type] || { icon: 'fa-file', color: '#999' };
+    var safeName = (f.name || '').replace(/"/g, '&quot;');
+    var indent = (depth || 0) * 20;
+    return '<div class="doc-tree-file" style="padding-left:' + (12 + indent) + 'px" data-name="' + safeName + '" data-type="' + (f.type || 'pdf') + '" data-author="' + (f.author || '') + '" data-time="' + (f.time || '') + '">' +
+        '<i class="fas ' + fi.icon + '" style="color:' + fi.color + '"></i>' +
+        '<span class="doc-tree-file-name">' + (f.name || '') + '</span>' +
+        '<div class="doc-tree-file-actions">' +
+        '<button type="button" class="doc-btn-text" onclick="event.stopPropagation(); openDocPreview(this.closest(\'.doc-tree-file\'))">预览</button>' +
+        '<button type="button" class="doc-btn-text" onclick="event.stopPropagation(); docDownloadFromList(this.closest(\'.doc-tree-file\'))">下载</button>' +
+        '</div></div>';
+}
+
+function toggleDocTreeNode(el) {
+    var children = el.nextElementSibling;
+    var arrow = el.querySelector('.doc-tree-arrow');
+    if (children && children.classList.contains('doc-tree-children')) {
+        var isHidden = children.style.display === 'none';
+        children.style.display = isHidden ? '' : 'none';
+        if (arrow) arrow.style.transform = isHidden ? '' : 'rotate(-90deg)';
+    }
+}
+
+function filterDocAllFiles(query) {
+    if (!query) { renderDocAllFileTree(); return; }
+    var container = document.getElementById('docAllFileTree');
+    if (!container) return;
+    var matched = docMockData.filter(function(d) { return d.name.indexOf(query) >= 0; });
+    if (matched.length === 0) {
+        container.innerHTML = '<div class="doc-empty"><i class="fas fa-search"></i><p>未找到匹配的文件</p></div>';
+        return;
+    }
+    container.innerHTML = matched.map(function(f) {
+        var fi = docFileIcons[f.type] || { icon: 'fa-file', color: '#999' };
+        var safeName = (f.name || '').replace(/"/g, '&quot;');
+        return '<div class="doc-file-item" data-name="' + safeName + '" data-type="' + (f.type || 'pdf') + '" data-author="' + (f.author || '') + '" data-time="' + (f.time || '') + '">' +
+            '<div class="doc-file-icon" style="color:' + fi.color + '"><i class="fas ' + fi.icon + '"></i></div>' +
+            '<div class="doc-file-info"><div class="doc-file-name">' + f.name + '</div><div class="doc-file-meta">' + f.dept + ' · ' + f.author + ' · ' + f.time + '</div></div>' +
+            '<div class="doc-file-actions">' +
+            '<button type="button" class="doc-btn doc-btn-preview" onclick="event.stopPropagation(); openDocPreview(this.closest(\'.doc-file-item\'))">预览</button>' +
+            '<button type="button" class="doc-btn doc-btn-download" onclick="event.stopPropagation(); docDownloadFromList(this.closest(\'.doc-file-item\'))">下载</button>' +
+            '</div></div>';
+    }).join('');
+}
+
+function initDocAiDemo() {
+    var area = document.getElementById('docAiChatArea');
+    if (!area) return;
+    var demoSteps = [
+        { delay: 800, type: 'user', text: '帮我找一下售前部3月的文档' },
+        { delay: 1800, type: 'bot', text: '正在为您检索售前部3月的文档...' },
+        { delay: 2800, type: 'result', query: '售前' },
+        { delay: 4500, type: 'user', text: '产品中心有什么文件？' },
+        { delay: 5500, type: 'bot', text: '为您查找产品中心的文档...' },
+        { delay: 6500, type: 'result', query: '产品中心' },
+    ];
+    demoSteps.forEach(function(step) {
+        setTimeout(function() {
+            if (!document.getElementById('docAiChatArea')) return;
+            if (step.type === 'user') {
+                area.innerHTML += '<div class="doc-ai-user-msg"><div class="doc-ai-user-bubble">' + step.text + '</div></div>';
+            } else if (step.type === 'bot') {
+                area.innerHTML += '<div class="doc-ai-bot-msg"><div class="doc-ai-avatar"><i class="fas fa-robot"></i></div><div class="doc-ai-bubble">' + step.text + '</div></div>';
+            } else if (step.type === 'result') {
+                var matched = docMockData.filter(function(d) { return d.name.indexOf(step.query) >= 0 || d.dept.indexOf(step.query) >= 0; });
+                var cards = matched.slice(0, 3).map(function(f) {
+                    var fi = docFileIcons[f.type] || { icon: 'fa-file', color: '#999' };
+                    var safeName = (f.name || '').replace(/"/g, '&quot;');
+                    return '<div class="doc-ai-result-card" data-name="' + safeName + '" data-type="' + (f.type || 'pdf') + '" data-author="' + (f.author || '') + '" data-time="' + (f.time || '') + '">' +
+                        '<i class="fas ' + fi.icon + '" style="color:' + fi.color + '"></i><span>' + f.name + '</span>' +
+                        '<div class="doc-ai-card-actions">' +
+                        '<button type="button" class="doc-btn-text" onclick="openDocPreview(this.closest(\'.doc-ai-result-card\'))">预览</button>' +
+                        '<button type="button" class="doc-btn-text" onclick="docDownloadFromList(this.closest(\'.doc-ai-result-card\'))">下载</button>' +
+                        '</div></div>';
+                }).join('');
+                area.innerHTML += '<div class="doc-ai-bot-msg"><div class="doc-ai-avatar"><i class="fas fa-robot"></i></div><div><div class="doc-ai-bubble">找到 ' + matched.length + ' 个相关文档：</div><div class="doc-ai-results">' + cards + '</div></div></div>';
+            }
+            area.scrollTop = area.scrollHeight;
+        }, step.delay);
+    });
+}
+
+// ----- 文档预览交互演示 -----
+function openDocPreview(el) {
+    var name = (el && el.dataset.name) ? el.dataset.name : '';
+    var type = (el && el.dataset.type) ? el.dataset.type : 'pdf';
+    var author = (el && el.dataset.author) ? el.dataset.author : '';
+    var time = (el && el.dataset.time) ? el.dataset.time : '';
+    if (!name && el) {
+        var info = el.querySelector('.doc-file-name') || el.querySelector('span');
+        if (info) name = info.textContent || '';
+    }
+    var container = document.getElementById('phoneContent');
+    if (!container) return;
+    var typeLabels = { pdf: 'PDF文档', docx: 'Word文档', doc: 'Word文档', xlsx: 'Excel表格', xls: 'Excel表格', pptx: 'PPT演示', ppt: 'PPT演示', mp4: '视频', jpg: '图片', png: '图片' };
+    var typeLabel = typeLabels[type] || '文档';
+    var bodyHtml = '';
+    if (type === 'pdf') {
+        bodyHtml = '<div class="doc-preview-pdf">' +
+            '<div class="doc-preview-page">' +
+            '<h2 class="doc-preview-title">' + name.replace(/\.pdf$/i, '') + '</h2>' +
+            '<p class="doc-preview-meta">' + author + ' · ' + time + ' · 绩效归档</p>' +
+            '<p class="doc-preview-p">本文档为月度绩效相关材料，内容仅供内部查阅。此处为原型演示的模拟预览效果。</p>' +
+            '<p class="doc-preview-p">实际产品中将支持在线查看 PDF 全文、缩放、翻页及下载等功能。</p>' +
+            '<p class="doc-preview-p">—— 售前业务支持说明、客户拜访记录等附件将在此展示。</p>' +
+            '<div class="doc-preview-page-num">第 1 页</div></div></div>';
+    } else if (type === 'pptx' || type === 'ppt') {
+        bodyHtml = '<div class="doc-preview-ppt">' +
+            '<div class="doc-preview-slide">' +
+            '<div class="doc-preview-slide-title">' + name.replace(/\.(pptx?|ppt)$/i, '') + '</div>' +
+            '<ul class="doc-preview-bullets">' +
+            '<li>智慧农业解决方案要点</li><li>产品演示与案例</li><li>后续合作建议</li>' +
+            '</ul>' +
+            '<div class="doc-preview-slide-footer">1 / 12</div></div></div>';
+    } else if (type === 'docx' || type === 'doc') {
+        bodyHtml = '<div class="doc-preview-doc">' +
+            '<h2 class="doc-preview-title">' + name.replace(/\.(docx?|doc)$/i, '') + '</h2>' +
+            '<p class="doc-preview-meta">' + author + ' · ' + time + '</p>' +
+            '<p class="doc-preview-p">一、概述</p><p class="doc-preview-p">本文档为方案初稿/会议纪要，此处为原型演示的文档预览模拟。</p>' +
+            '<p class="doc-preview-p">二、主要内容</p><p class="doc-preview-p">实际产品将支持 Word 在线预览、批注与下载。</p></div>';
+    } else if (type === 'xlsx' || type === 'xls') {
+        bodyHtml = '<div class="doc-preview-xls">' +
+            '<table class="doc-preview-table"><thead><tr><th>项目</th><th>状态</th><th>备注</th></tr></thead><tbody>' +
+            '<tr><td>供应商A</td><td>已评审</td><td>合格</td></tr>' +
+            '<tr><td>供应商B</td><td>待评审</td><td>—</td></tr>' +
+            '<tr><td>供应商C</td><td>已评审</td><td>合格</td></tr></tbody></table>' +
+            '<p class="doc-preview-p">以上为模拟表格预览，实际将展示 Excel 内容。</p></div>';
+    } else if (type === 'mp4' || type === 'jpg' || type === 'png') {
+        bodyHtml = '<div class="doc-preview-media">' +
+            '<div class="doc-preview-media-placeholder"><i class="fas fa-' + (type === 'mp4' ? 'play-circle' : 'image') + '"></i><span>' + (type === 'mp4' ? '视频预览' : '图片预览') + '</span></div>' +
+            '<p class="doc-preview-p">' + name + '</p><p class="doc-preview-meta">' + author + ' · ' + time + '</p></div>';
+    } else {
+        bodyHtml = '<div class="doc-preview-doc"><h2 class="doc-preview-title">' + name + '</h2><p class="doc-preview-p">文档预览演示。</p></div>';
+    }
+    var overlay = document.getElementById('docPreviewOverlay');
+    if (overlay) overlay.remove();
+    overlay = document.createElement('div');
+    overlay.id = 'docPreviewOverlay';
+    overlay.className = 'doc-preview-overlay';
+    overlay.innerHTML = '<div class="doc-preview-header">' +
+        '<button class="doc-preview-back" onclick="closeDocPreview()"><i class="fas fa-arrow-left"></i></button>' +
+        '<span class="doc-preview-filename" title="' + name.replace(/"/g, '&quot;') + '">' + name + '</span>' +
+        '<button class="doc-preview-close" onclick="closeDocPreview()"><i class="fas fa-times"></i></button>' +
+        '</div><div class="doc-preview-body">' + bodyHtml + '</div>';
+    container.appendChild(overlay);
+    document.body.classList.add('doc-preview-open');
+}
+
+function closeDocPreview() {
+    var overlay = document.getElementById('docPreviewOverlay');
+    if (overlay) overlay.remove();
+    document.body.classList.remove('doc-preview-open');
+}
+
+function docDownloadFromList(el) {
+    if (!el) return;
+    var name = (el.dataset && el.dataset.name) ? el.dataset.name : '';
+    if (!name && el.querySelector) {
+        var nameEl = el.querySelector('.doc-file-name') || el.querySelector('.doc-tree-file-name');
+        if (nameEl) name = nameEl.textContent;
+    }
+    if (!name) name = '文档';
+    showNotification('正在下载：' + name + ' …', 'info');
 }
