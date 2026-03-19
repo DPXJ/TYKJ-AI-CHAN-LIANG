@@ -17227,6 +17227,282 @@ body {
     margin-bottom: 12px;
     display: block;
 }
+.doc-empty-hint {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 8px;
+}
+.doc-loading-skeleton {
+    padding: 12px;
+}
+.doc-skeleton-line {
+    height: 48px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: docSkeleton 1.2s ease-in-out infinite;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+@keyframes docSkeleton {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+.doc-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+.doc-toolbar-select {
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background: #fff;
+}
+.doc-load-more-wrap {
+    padding: 12px;
+    text-align: center;
+}
+.doc-load-more-btn {
+    font-size: 13px;
+    color: #1890ff;
+    background: none;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+.doc-batch-bar {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #fff;
+    border-top: 1px solid #eee;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+}
+.doc-batch-bar.hidden {
+    display: none;
+}
+.doc-batch-count {
+    flex: 1;
+    font-size: 13px;
+    color: #333;
+}
+.doc-batch-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+    background: #1890ff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.doc-batch-cancel {
+    font-size: 12px;
+    color: #999;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.doc-file-check {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.doc-file-check input {
+    width: 18px;
+    height: 18px;
+}
+.doc-btn-share {
+    background: #f0f0f0;
+    color: #333;
+}
+.doc-btn-share:active {
+    background: #e0e0e0;
+}
+.doc-btn-perf {
+    background: #52c41a;
+    color: #fff;
+}
+.doc-btn-perf:active {
+    background: #389e0d;
+}
+.doc-preview-prev,
+.doc-preview-next {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.9);
+    padding: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.doc-preview-prev:hover,
+.doc-preview-next:hover {
+    color: #fff;
+}
+.doc-search-wrap {
+    position: relative;
+}
+.doc-search-suggest {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    margin-top: 4px;
+}
+.doc-search-suggest.hidden {
+    display: none !important;
+}
+.doc-suggest-title {
+    font-size: 11px;
+    color: #999;
+    padding: 6px 12px 2px;
+}
+.doc-suggest-item {
+    font-size: 13px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+.doc-suggest-item:active {
+    background: #f5f5f5;
+}
+.doc-suggest-empty {
+    font-size: 12px;
+    color: #999;
+    padding: 12px;
+    text-align: center;
+}
+.doc-breadcrumb {
+    font-size: 12px;
+    color: #666;
+    padding: 8px 12px;
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+}
+.hidden {
+    display: none !important;
+}
+
+/* 绩效任务关联弹层（模拟演示） */
+.doc-perf-task-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: docPreviewFadeIn 0.2s ease;
+}
+.doc-perf-task-card {
+    background: #fff;
+    border-radius: 12px;
+    max-width: 340px;
+    width: 100%;
+    max-height: 85%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.doc-perf-task-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #21c08b, #0aa06e);
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+}
+.doc-perf-task-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.9);
+    padding: 4px;
+    cursor: pointer;
+    font-size: 18px;
+}
+.doc-perf-task-body {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+}
+.doc-perf-task-row {
+    display: flex;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+.doc-perf-task-row .label {
+    color: #999;
+    width: 72px;
+    flex-shrink: 0;
+}
+.doc-perf-task-row span:last-child {
+    color: #333;
+}
+.doc-perf-task-attach {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #333;
+    margin-top: 12px;
+}
+.doc-perf-task-attach i {
+    color: #e74c3c;
+}
+.doc-perf-task-attach span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.doc-perf-task-hint {
+    font-size: 11px;
+    color: #999;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+.doc-perf-task-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #eee;
+}
+.doc-perf-task-back {
+    width: 100%;
+    padding: 10px;
+    background: #1890ff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.doc-perf-task-back:active {
+    background: #096dd9;
+}
+
 .doc-empty p {
     font-size: 13px;
 }

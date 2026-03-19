@@ -137,11 +137,14 @@
         <!-- 顶部栏 -->
         <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
             <div class="flex items-center gap-2 text-sm text-gray-500">
-                <a href="#" class="hover:text-primary">文档管理</a>
+                <a href="#" class="hover:text-primary" onclick="document.getElementById('breadcrumbCurrent').textContent='AI文档管理';renderDocTable();return false">文档管理</a>
                 <span>/</span>
                 <span class="text-gray-800 font-medium" id="breadcrumbCurrent">AI文档管理</span>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
+                <button class="text-xs px-3 py-1.5 border border-primary text-primary rounded-md hover:bg-blue-50" onclick="alert('上传文件功能演示')"><i class="fas fa-upload mr-1"></i>上传</button>
+                <button class="text-xs px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-50" onclick="alert('新建文件夹功能演示')"><i class="fas fa-folder-plus mr-1"></i>新建文件夹</button>
+                <button class="text-xs px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-50" onclick="alert('权限管理功能演示')"><i class="fas fa-lock mr-1"></i>权限</button>
                 <button class="relative text-gray-500 hover:text-primary">
                     <i class="fas fa-bell text-lg"></i>
                     <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">3</span>

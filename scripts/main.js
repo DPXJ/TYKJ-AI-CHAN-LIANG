@@ -5333,7 +5333,18 @@ const pageData = {
                     <div class="doc-header-spacer"></div>
                 </div>
                 <div class="mobile-content doc-module-content">
+                    <div class="doc-toolbar" id="docDeptToolbar">
+                        <select class="doc-toolbar-select" onchange="window._docSortBy=this.value;renderDocDeptFileList(window._docDeptDetailParam)"><option value="time">时间</option><option value="name">名称</option><option value="type">类型</option></select>
+                        <select class="doc-toolbar-select" onchange="window._docFilterType=this.value;renderDocDeptFileList(window._docDeptDetailParam)"><option value="">全部类型</option><option value="pdf">PDF</option><option value="docx">Word</option><option value="xlsx">Excel</option><option value="pptx">PPT</option></select>
+                    </div>
                     <div id="docDeptFileList" class="doc-file-list"></div>
+                    <div id="docDeptLoadMore" class="doc-load-more-wrap"></div>
+                    <div id="docBatchBar" class="doc-batch-bar hidden">
+                        <span class="doc-batch-count">已选 0 项</span>
+                        <button type="button" class="doc-batch-btn" onclick="docBatchDownload()">批量下载</button>
+                        <button type="button" class="doc-batch-btn" onclick="showNotification(\'批量设置权限演示中…\',\'info\')">权限</button>
+                        <button type="button" class="doc-batch-cancel" onclick="docCancelSelect()">取消</button>
+                    </div>
                 </div>
                 <div class="doc-bottom-nav">
                     <div class="doc-nav-item active" onclick="loadPage('docPerformance')"><i class="fas fa-file-alt"></i><span>绩效文档</span></div>
@@ -5395,10 +5406,14 @@ const pageData = {
                     </div>
                 </div>
                 <div class="mobile-content doc-module-content">
-                    <div class="doc-search-bar">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="搜索文件名..." oninput="filterDocAllFiles(this.value)">
+                    <div class="doc-search-wrap">
+                        <div class="doc-search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="docAllSearchInput" placeholder="搜索文件名..." oninput="docAllSearchDebounced(this.value)" onfocus="docAllSearchSuggestShow()" onblur="setTimeout(function(){docAllSearchSuggestHide();},200)">
+                        </div>
+                        <div id="docSearchSuggest" class="doc-search-suggest hidden"></div>
                     </div>
+                    <div id="docBreadcrumb" class="doc-breadcrumb">全部文件</div>
                     <div id="docAllFileTree" class="doc-file-tree"></div>
                 </div>
                 <div class="doc-bottom-nav">
@@ -6440,7 +6455,7 @@ function loadPage(pageName, param, options) {
             setTimeout(() => { renderDocDeptCards('03'); }, 50);
         }
         if (pageName === 'docDeptDetail' && param) {
-            setTimeout(() => { renderDocDeptFileList(param); }, 50);
+            setTimeout(() => { renderDocDeptFileList(param); setupDocPullRefresh(); }, 50);
         }
         if (pageName === 'docAiSearch') {
             setTimeout(() => { initDocAiDemo(); }, 300);
@@ -16313,6 +16328,15 @@ var docFileIcons = {
 };
 
 window._docCurrentMonth = '03';
+window._docRecent = [];
+window._docSearchHistory = [];
+window._docPreviewList = [];
+window._docPreviewIndex = -1;
+window._docListPageSize = 6;
+window._docSelectedIds = new Set();
+window._docSortBy = 'time';
+window._docFilterType = '';
+window._docDeptDetailParam = '';
 
 function renderDocDeptCards(month) {
     window._docCurrentMonth = month;
@@ -16351,28 +16375,187 @@ function switchDocMonth(el, month) {
 }
 
 function renderDocDeptFileList(param) {
+    window._docDeptDetailParam = param || window._docDeptDetailParam;
+    param = window._docDeptDetailParam;
+    if (!param) return;
     var parts = param.split('_');
     var dept = parts[0], month = parts[1];
     var titleEl = document.getElementById('docDeptTitle');
     if (titleEl) titleEl.textContent = dept + ' - ' + month + '月';
     var container = document.getElementById('docDeptFileList');
+    var loadMoreWrap = document.getElementById('docDeptLoadMore');
+    var batchBar = document.getElementById('docBatchBar');
     if (!container) return;
-    var files = docMockData.filter(function(d) { return d.dept === dept && d.month === month; });
-    if (files.length === 0) {
-        container.innerHTML = '<div class="doc-empty"><i class="fas fa-inbox"></i><p>暂无文档</p></div>';
-        return;
-    }
-    container.innerHTML = files.map(function(f) {
+    window._docSelectedIds.clear();
+    if (batchBar) { batchBar.classList.add('hidden'); }
+    var raw = docMockData.filter(function(d) { return d.dept === dept && d.month === month; });
+    var sortBy = window._docSortBy || 'time';
+    var filterType = window._docFilterType || '';
+    if (filterType) raw = raw.filter(function(d) { return (d.type || '').toLowerCase() === filterType.toLowerCase(); });
+    if (sortBy === 'name') raw.sort(function(a,b) { return (a.name||'').localeCompare(b.name||''); });
+    else if (sortBy === 'type') raw.sort(function(a,b) { return (a.type||'').localeCompare(b.type||''); });
+    else raw.sort(function(a,b) { return (b.time||'').localeCompare(a.time||''); });
+    window._docPreviewList = raw.slice();
+    container.innerHTML = '<div class="doc-loading-skeleton"><div class="doc-skeleton-line"></div><div class="doc-skeleton-line"></div><div class="doc-skeleton-line"></div></div>';
+    if (loadMoreWrap) loadMoreWrap.innerHTML = '';
+    setTimeout(function() {
+        if (!document.getElementById('docDeptFileList')) return;
+        if (raw.length === 0) {
+            container.innerHTML = '<div class="doc-empty"><i class="fas fa-folder-open"></i><p>暂无文档</p><p class="doc-empty-hint">去上传或从绩效归档同步</p></div>';
+            return;
+        }
+        var pageSize = window._docListPageSize || 6;
+        window._docListOffset = 0;
+        renderDocDeptFileListChunk(container, raw, 0, pageSize);
+        if (loadMoreWrap && raw.length > pageSize) {
+            loadMoreWrap.innerHTML = '<button type="button" class="doc-load-more-btn" onclick="docDeptLoadMore()">加载更多（' + (raw.length - pageSize) + '）</button>';
+        }
+    }, 400);
+}
+
+function renderDocDeptFileListChunk(container, files, offset, pageSize) {
+    var chunk = files.slice(offset, offset + pageSize);
+    var html = chunk.map(function(f, i) {
+        var idx = offset + i;
         var fi = docFileIcons[f.type] || { icon: 'fa-file', color: '#999' };
         var safeName = (f.name || '').replace(/"/g, '&quot;');
-        return '<div class="doc-file-item" data-name="' + safeName + '" data-type="' + (f.type || 'pdf') + '" data-author="' + (f.author || '') + '" data-time="' + (f.time || '') + '">' +
+        var fileId = (f.name || '') + '|' + (f.dept || '') + '|' + (f.time || '');
+        return '<div class="doc-file-item" data-name="' + safeName + '" data-type="' + (f.type || 'pdf') + '" data-author="' + (f.author || '') + '" data-time="' + (f.time || '') + '" data-id="' + fileId.replace(/"/g, '&quot;') + '" data-index="' + idx + '">' +
+            '<label class="doc-file-check"><input type="checkbox" onchange="docToggleSelect(this)"><span></span></label>' +
             '<div class="doc-file-icon" style="color:' + fi.color + '"><i class="fas ' + fi.icon + '"></i></div>' +
             '<div class="doc-file-info"><div class="doc-file-name">' + f.name + '</div><div class="doc-file-meta">' + f.author + ' · ' + f.time + '</div></div>' +
             '<div class="doc-file-actions">' +
-            '<button type="button" class="doc-btn doc-btn-preview" onclick="event.stopPropagation(); openDocPreview(this.closest(\'.doc-file-item\'))">预览</button>' +
+            '<button type="button" class="doc-btn doc-btn-preview" onclick="event.stopPropagation(); openDocPreview(this.closest(\'.doc-file-item\'), parseInt(this.closest(\'.doc-file-item\').dataset.index,10))">预览</button>' +
             '<button type="button" class="doc-btn doc-btn-download" onclick="event.stopPropagation(); docDownloadFromList(this.closest(\'.doc-file-item\'))">下载</button>' +
+            '<button type="button" class="doc-btn doc-btn-perf" onclick="event.stopPropagation(); docGoToPerformanceTask(this.closest(\'.doc-file-item\'))">绩效</button>' +
+            '<button type="button" class="doc-btn doc-btn-share" onclick="event.stopPropagation(); docShareFile(this.closest(\'.doc-file-item\'))">分享</button>' +
             '</div></div>';
     }).join('');
+    if (offset === 0) container.innerHTML = html;
+    else container.innerHTML += html;
+}
+
+function docDeptLoadMore() {
+    var param = window._docDeptDetailParam;
+    if (!param) return;
+    var parts = param.split('_');
+    var dept = parts[0], month = parts[1];
+    var raw = docMockData.filter(function(d) { return d.dept === dept && d.month === month; });
+    var filterType = window._docFilterType || '';
+    if (filterType) raw = raw.filter(function(d) { return (d.type || '').toLowerCase() === filterType.toLowerCase(); });
+    var sortBy = window._docSortBy || 'time';
+    if (sortBy === 'name') raw.sort(function(a,b) { return (a.name||'').localeCompare(b.name||''); });
+    else if (sortBy === 'type') raw.sort(function(a,b) { return (a.type||'').localeCompare(b.type||''); });
+    else raw.sort(function(a,b) { return (b.time||'').localeCompare(a.time||''); });
+    var container = document.getElementById('docDeptFileList');
+    var loadMoreWrap = document.getElementById('docDeptLoadMore');
+    if (!container || !loadMoreWrap) return;
+    window._docListOffset = window._docListOffset || 0;
+    var pageSize = window._docListPageSize || 6;
+    var nextOffset = window._docListOffset + pageSize;
+    renderDocDeptFileListChunk(container, raw, nextOffset, pageSize);
+    window._docListOffset = nextOffset;
+    var remain = raw.length - (nextOffset + pageSize);
+    if (remain <= 0) loadMoreWrap.innerHTML = '';
+    else loadMoreWrap.innerHTML = '<button type="button" class="doc-load-more-btn" onclick="docDeptLoadMore()">加载更多（' + Math.min(remain, raw.length - nextOffset) + '）</button>';
+}
+
+function docToggleSelect(checkbox) {
+    var item = checkbox.closest('.doc-file-item');
+    var id = item && item.dataset && item.dataset.id;
+    if (!id) return;
+    if (checkbox.checked) window._docSelectedIds.add(id);
+    else window._docSelectedIds.delete(id);
+    var bar = document.getElementById('docBatchBar');
+    if (bar) {
+        bar.classList.toggle('hidden', window._docSelectedIds.size === 0);
+        var countEl = bar.querySelector('.doc-batch-count');
+        if (countEl) countEl.textContent = '已选 ' + window._docSelectedIds.size + ' 项';
+    }
+}
+
+function docBatchDownload() {
+    var n = window._docSelectedIds.size;
+    showNotification('正在批量下载 ' + n + ' 个文件…', 'info');
+}
+
+function docCancelSelect() {
+    window._docSelectedIds.clear();
+    document.querySelectorAll('#docDeptFileList .doc-file-item input[type=checkbox]').forEach(function(cb) { cb.checked = false; });
+    var bar = document.getElementById('docBatchBar');
+    if (bar) bar.classList.add('hidden');
+}
+
+function setupDocPullRefresh() {
+    var content = document.querySelector('.doc-dept-detail-page .doc-module-content');
+    if (!content || content._docPullRefresh) return;
+    content._docPullRefresh = true;
+    var startY = 0;
+    var tip = null;
+    content.addEventListener('touchstart', function(e) {
+        if (content.scrollTop <= 0) startY = e.touches[0].clientY;
+    }, { passive: true });
+    content.addEventListener('touchmove', function(e) {
+        if (content.scrollTop > 0) return;
+        var y = e.touches[0].clientY;
+        if (y - startY > 60 && !tip) {
+            tip = showNotification('释放刷新', 'info');
+        }
+    }, { passive: true });
+    content.addEventListener('touchend', function(e) {
+        if (content.scrollTop <= 0 && startY > 0 && tip) {
+            var y = e.changedTouches[0].clientY;
+            if (y - startY > 50) {
+                renderDocDeptFileList(window._docDeptDetailParam);
+            }
+        }
+        startY = 0;
+        tip = null;
+    }, { passive: true });
+}
+
+function docShareFile(el) {
+    if (!el) return;
+    var name = (el.dataset && el.dataset.name) ? el.dataset.name : '';
+    if (!name && el.querySelector) {
+        var ne = el.querySelector('.doc-file-name') || el.querySelector('.doc-tree-file-name');
+        if (ne) name = ne.textContent;
+    }
+    showNotification('分享链接已复制（演示）', 'success');
+}
+
+function docGoToPerformanceTask(el) {
+    if (!el) return;
+    var name = (el.dataset && el.dataset.name) ? el.dataset.name : '';
+    var author = (el.dataset && el.dataset.author) ? el.dataset.author : '';
+    var time = (el.dataset && el.dataset.time) ? el.dataset.time : '';
+    if (!name && el.querySelector) {
+        var ne = el.querySelector('.doc-file-name');
+        if (ne) name = ne.textContent;
+    }
+    var titleEl = document.getElementById('docDeptTitle');
+    var deptMonth = titleEl ? titleEl.textContent : '售前部 - 03月';
+    var taskName = deptMonth + ' 绩效反馈';
+    var container = document.getElementById('phoneContent');
+    if (!container) return;
+    var overlay = document.getElementById('docPerfTaskOverlay');
+    if (overlay) overlay.remove();
+    overlay = document.createElement('div');
+    overlay.id = 'docPerfTaskOverlay';
+    overlay.className = 'doc-perf-task-overlay';
+    overlay.innerHTML = '<div class="doc-perf-task-card">' +
+        '<div class="doc-perf-task-header"><span>关联绩效任务</span><button type="button" class="doc-perf-task-close" onclick="document.getElementById(\'docPerfTaskOverlay\')&&document.getElementById(\'docPerfTaskOverlay\').remove()"><i class="fas fa-times"></i></button></div>' +
+        '<div class="doc-perf-task-body">' +
+        '<div class="doc-perf-task-row"><span class="label">任务名称</span><span>' + taskName + '</span></div>' +
+        '<div class="doc-perf-task-row"><span class="label">提交人</span><span>' + (author || '—') + '</span></div>' +
+        '<div class="doc-perf-task-row"><span class="label">提交时间</span><span>' + (time || '—') + '</span></div>' +
+        '<div class="doc-perf-task-row"><span class="label">附件来源</span><span>当前文档来自该绩效任务的附件</span></div>' +
+        '<div class="doc-perf-task-attach"><i class="fas fa-file-pdf"></i><span>' + (name || '文档') + '</span></div>' +
+        '<p class="doc-perf-task-hint">此处为模拟演示，实际产品中可从此跳转至绩效管理对应任务详情。</p>' +
+        '</div>' +
+        '<div class="doc-perf-task-footer"><button type="button" class="doc-perf-task-back" onclick="document.getElementById(\'docPerfTaskOverlay\')&&document.getElementById(\'docPerfTaskOverlay\').remove()">返回</button></div>' +
+        '</div>';
+    container.appendChild(overlay);
 }
 
 function sendDocAiQuery() {
@@ -16387,15 +16570,18 @@ function sendDocAiQuery() {
     setTimeout(function() {
         var reply = '';
         if (matched.length > 0) {
+            var showList = matched.slice(0, 4);
+            window._docPreviewList = showList;
             reply = '<div class="doc-ai-bubble">为您找到 ' + matched.length + ' 个相关文档：</div>' +
-                '<div class="doc-ai-results">' + matched.slice(0, 4).map(function(f) {
+                '<div class="doc-ai-results">' + showList.map(function(f, i) {
                     var fi = docFileIcons[f.type] || { icon: 'fa-file', color: '#999' };
                     var safeName = (f.name || '').replace(/"/g, '&quot;');
-                    return '<div class="doc-ai-result-card" data-name="' + safeName + '" data-type="' + (f.type || 'pdf') + '" data-author="' + (f.author || '') + '" data-time="' + (f.time || '') + '">' +
+                    return '<div class="doc-ai-result-card" data-name="' + safeName + '" data-type="' + (f.type || 'pdf') + '" data-author="' + (f.author || '') + '" data-time="' + (f.time || '') + '" data-index="' + i + '">' +
                         '<i class="fas ' + fi.icon + '" style="color:' + fi.color + '"></i><span>' + f.name + '</span>' +
                         '<div class="doc-ai-card-actions">' +
-                        '<button type="button" class="doc-btn-text" onclick="openDocPreview(this.closest(\'.doc-ai-result-card\'))">预览</button>' +
+                        '<button type="button" class="doc-btn-text" onclick="openDocPreview(this.closest(\'.doc-ai-result-card\'), ' + i + ')">预览</button>' +
                         '<button type="button" class="doc-btn-text" onclick="docDownloadFromList(this.closest(\'.doc-ai-result-card\'))">下载</button>' +
+                        '<button type="button" class="doc-btn-text" onclick="docShareFile(this.closest(\'.doc-ai-result-card\'))">分享</button>' +
                         '</div></div>';
                 }).join('') + '</div>';
         } else {
@@ -16408,28 +16594,33 @@ function sendDocAiQuery() {
 
 function renderDocAllFileTree() {
     var container = document.getElementById('docAllFileTree');
+    var breadcrumb = document.getElementById('docBreadcrumb');
     if (!container) return;
+    if (breadcrumb) breadcrumb.textContent = '全部文件';
+    var recent = window._docRecent || [];
     var files03 = docMockData.filter(function(d){ return d.month === '03'; });
     var files02 = docMockData.filter(function(d){ return d.month === '02'; });
     var files01 = docMockData.filter(function(d){ return d.month === '01'; });
     var tree = [
+        { label: '最近使用', icon: 'fa-clock', fileChildren: recent.slice(0, 5), count: recent.length, defaultCollapsed: true },
+        { label: '我的收藏', icon: 'fa-star', fileChildren: [], count: 0, defaultCollapsed: true },
         { label: '月度绩效归档', icon: 'fa-archive', locked: true, children: [
             { label: '2026年', icon: 'fa-calendar-alt', children: [
-                { label: '03月', icon: 'fa-calendar-day', count: files03.length, fileChildren: files03 },
-                { label: '02月', icon: 'fa-calendar-day', count: files02.length, fileChildren: files02 },
-                { label: '01月', icon: 'fa-calendar-day', count: files01.length, fileChildren: files01 },
+                { label: '03月', icon: 'fa-calendar-day', count: files03.length, fileChildren: files03, defaultCollapsed: true },
+                { label: '02月', icon: 'fa-calendar-day', count: files02.length, fileChildren: files02, defaultCollapsed: true },
+                { label: '01月', icon: 'fa-calendar-day', count: files01.length, fileChildren: files01, defaultCollapsed: true },
             ]},
         ]},
         { label: '公司公共文档', icon: 'fa-folder', children: [
             { label: '制度规范', icon: 'fa-gavel', count: 8 },
             { label: '培训资料', icon: 'fa-chalkboard-teacher', count: 12 },
             { label: '品牌素材', icon: 'fa-palette', count: 6 },
-        ]},
+        ], defaultCollapsed: true },
         { label: '团队共享文档', icon: 'fa-users', children: [
             { label: '产品中心', icon: 'fa-lightbulb', count: 15 },
             { label: '研发部', icon: 'fa-code', count: 22 },
             { label: '售前部', icon: 'fa-handshake', count: 9 },
-        ]},
+        ], defaultCollapsed: true },
     ];
     container.innerHTML = tree.map(function(node) { return buildDocTreeNode(node, 0); }).join('');
 }
@@ -16442,16 +16633,19 @@ function buildDocTreeNode(node, depth) {
     var fileChildren = node.fileChildren || [];
     var folderChildren = node.children || [];
     var hasChildren = folderChildren.length > 0 || fileChildren.length > 0;
+    var collapsed = !!node.defaultCollapsed;
     var lockHtml = node.locked ? ' <i class="fas fa-lock" style="font-size:9px;color:#ccc;margin-left:4px"></i>' : '';
     var countHtml = node.count ? '<span class="doc-tree-count">' + node.count + '</span>' : '';
-    var arrowHtml = hasChildren ? '<i class="fas fa-chevron-down doc-tree-arrow"></i>' : '';
+    var arrowStyle = (hasChildren && collapsed) ? ' style="transform:rotate(-90deg)"' : '';
+    var arrowHtml = hasChildren ? '<i class="fas fa-chevron-down doc-tree-arrow"' + arrowStyle + '></i>' : '';
     var html = '<div class="doc-tree-node" style="padding-left:' + (12 + indent) + 'px" onclick="toggleDocTreeNode(this)">' +
         arrowHtml +
         '<i class="fas ' + node.icon + ' doc-tree-icon"></i>' +
         '<span class="doc-tree-label">' + node.label + lockHtml + '</span>' +
         countHtml + '</div>';
     if (hasChildren) {
-        html += '<div class="doc-tree-children">';
+        var childStyle = collapsed ? ' style="display:none"' : '';
+        html += '<div class="doc-tree-children"' + childStyle + '>';
         folderChildren.forEach(function(child) { html += buildDocTreeNode(child, depth + 1); });
         fileChildren.forEach(function(f) { html += buildDocTreeFileRow(f, depth + 1); });
         html += '</div>';
@@ -16482,26 +16676,108 @@ function toggleDocTreeNode(el) {
     }
 }
 
+var _docAllSearchTimer = null;
+function docAllSearchDebounced(query) {
+    if (_docAllSearchTimer) clearTimeout(_docAllSearchTimer);
+    _docAllSearchTimer = setTimeout(function() {
+        filterDocAllFiles(query);
+        if (query && window._docSearchHistory && window._docSearchHistory.indexOf(query) < 0) {
+            window._docSearchHistory.unshift(query);
+            if (window._docSearchHistory.length > 8) window._docSearchHistory.pop();
+        }
+    }, 300);
+}
+function docAllSearchSuggestShow() {
+    var input = document.getElementById('docAllSearchInput');
+    var wrap = document.getElementById('docSearchSuggest');
+    if (!wrap || !input) return;
+    var q = (input.value || '').trim();
+    var html = '';
+    if (window._docSearchHistory && window._docSearchHistory.length > 0) {
+        html += '<div class="doc-suggest-title">最近搜索</div>';
+        window._docSearchHistory.slice(0, 5).forEach(function(k) {
+            html += '<div class="doc-suggest-item" onclick="document.getElementById(\'docAllSearchInput\').value=\'' + String(k).replace(/'/g, "\\'") + '\';filterDocAllFiles(\'' + String(k).replace(/'/g, "\\'") + '\');docAllSearchSuggestHide()">' + String(k) + '</div>';
+        });
+    }
+    if (q.length > 0) {
+        var matches = docMockData.filter(function(d) { return d.name.indexOf(q) >= 0 || (d.dept && d.dept.indexOf(q) >= 0); }).slice(0, 5);
+        if (matches.length) {
+            html += '<div class="doc-suggest-title">联想结果</div>';
+            matches.forEach(function(f) {
+                var n = (f.name || '').replace(/'/g, "\\'");
+                html += '<div class="doc-suggest-item" onclick="document.getElementById(\'docAllSearchInput\').value=\'' + n + '\';filterDocAllFiles(\'' + n + '\');docAllSearchSuggestHide()">' + (f.name || '') + '</div>';
+            });
+        }
+    }
+    wrap.innerHTML = html || '<div class="doc-suggest-empty">输入关键词搜索</div>';
+    wrap.classList.remove('hidden');
+}
+function docAllSearchSuggestHide() {
+    var wrap = document.getElementById('docSearchSuggest');
+    if (wrap) wrap.classList.add('hidden');
+}
 function filterDocAllFiles(query) {
-    if (!query) { renderDocAllFileTree(); return; }
     var container = document.getElementById('docAllFileTree');
+    var breadcrumb = document.getElementById('docBreadcrumb');
     if (!container) return;
+    if (breadcrumb) breadcrumb.textContent = query ? '搜索结果：' + query : '全部文件';
+    if (!query) { renderDocAllFileTree(); return; }
     var matched = docMockData.filter(function(d) { return d.name.indexOf(query) >= 0; });
+    window._docPreviewList = matched.slice();
     if (matched.length === 0) {
-        container.innerHTML = '<div class="doc-empty"><i class="fas fa-search"></i><p>未找到匹配的文件</p></div>';
+        container.innerHTML = '<div class="doc-empty"><i class="fas fa-search"></i><p>未找到匹配的文件</p><p class="doc-empty-hint">试试其他关键词</p></div>';
         return;
     }
-    container.innerHTML = matched.map(function(f) {
+    var pageSize = window._docListPageSize || 6;
+    window._docListOffset = 0;
+    container.innerHTML = matched.slice(0, pageSize).map(function(f, i) {
         var fi = docFileIcons[f.type] || { icon: 'fa-file', color: '#999' };
         var safeName = (f.name || '').replace(/"/g, '&quot;');
-        return '<div class="doc-file-item" data-name="' + safeName + '" data-type="' + (f.type || 'pdf') + '" data-author="' + (f.author || '') + '" data-time="' + (f.time || '') + '">' +
+        return '<div class="doc-file-item" data-name="' + safeName + '" data-type="' + (f.type || 'pdf') + '" data-author="' + (f.author || '') + '" data-time="' + (f.time || '') + '" data-index="' + i + '">' +
             '<div class="doc-file-icon" style="color:' + fi.color + '"><i class="fas ' + fi.icon + '"></i></div>' +
             '<div class="doc-file-info"><div class="doc-file-name">' + f.name + '</div><div class="doc-file-meta">' + f.dept + ' · ' + f.author + ' · ' + f.time + '</div></div>' +
             '<div class="doc-file-actions">' +
-            '<button type="button" class="doc-btn doc-btn-preview" onclick="event.stopPropagation(); openDocPreview(this.closest(\'.doc-file-item\'))">预览</button>' +
+            '<button type="button" class="doc-btn doc-btn-preview" onclick="event.stopPropagation(); openDocPreview(this.closest(\'.doc-file-item\'), ' + i + ')">预览</button>' +
             '<button type="button" class="doc-btn doc-btn-download" onclick="event.stopPropagation(); docDownloadFromList(this.closest(\'.doc-file-item\'))">下载</button>' +
+            '<button type="button" class="doc-btn doc-btn-share" onclick="event.stopPropagation(); docShareFile(this.closest(\'.doc-file-item\'))">分享</button>' +
             '</div></div>';
     }).join('');
+    if (matched.length > pageSize) {
+        var qEsc = String(query).replace(/'/g, "\\'");
+        container.innerHTML += '<div class="doc-load-more-wrap"><button type="button" class="doc-load-more-btn" onclick="docAllFilesLoadMore(\'' + qEsc + '\')">加载更多（' + (matched.length - pageSize) + '）</button></div>';
+    }
+}
+function docAllFilesLoadMore(query) {
+    var container = document.getElementById('docAllFileTree');
+    if (!container) return;
+    var matched = docMockData.filter(function(d) { return d.name.indexOf(query) >= 0; });
+    var pageSize = window._docListPageSize || 6;
+    window._docListOffset = window._docListOffset || 0;
+    var nextOffset = window._docListOffset + pageSize;
+    var chunk = matched.slice(nextOffset, nextOffset + pageSize);
+    var loadMoreWrap = container.querySelector('.doc-load-more-wrap');
+    chunk.forEach(function(f, i) {
+        var idx = nextOffset + i;
+        var fi = docFileIcons[f.type] || { icon: 'fa-file', color: '#999' };
+        var div = document.createElement('div');
+        div.className = 'doc-file-item';
+        div.dataset.name = f.name;
+        div.dataset.type = f.type || 'pdf';
+        div.dataset.author = f.author || '';
+        div.dataset.time = f.time || '';
+        div.dataset.index = idx;
+        div.innerHTML = '<div class="doc-file-icon" style="color:' + fi.color + '"><i class="fas ' + fi.icon + '"></i></div>' +
+            '<div class="doc-file-info"><div class="doc-file-name">' + f.name + '</div><div class="doc-file-meta">' + f.dept + ' · ' + f.author + ' · ' + f.time + '</div></div>' +
+            '<div class="doc-file-actions">' +
+            '<button type="button" class="doc-btn doc-btn-preview" onclick="event.stopPropagation(); openDocPreview(this.closest(\'.doc-file-item\'), ' + idx + ')">预览</button>' +
+            '<button type="button" class="doc-btn doc-btn-download" onclick="event.stopPropagation(); docDownloadFromList(this.closest(\'.doc-file-item\'))">下载</button>' +
+            '<button type="button" class="doc-btn doc-btn-share" onclick="event.stopPropagation(); docShareFile(this.closest(\'.doc-file-item\'))">分享</button></div>';
+        container.insertBefore(div, loadMoreWrap);
+    });
+    window._docListOffset = nextOffset;
+    var remain = matched.length - (nextOffset + pageSize);
+    if (remain <= 0 && loadMoreWrap) loadMoreWrap.remove();
+    else if (loadMoreWrap && loadMoreWrap.querySelector('.doc-load-more-btn')) loadMoreWrap.querySelector('.doc-load-more-btn').textContent = '加载更多（' + Math.max(0, matched.length - nextOffset - pageSize) + '）';
 }
 
 function initDocAiDemo() {
@@ -16542,14 +16818,25 @@ function initDocAiDemo() {
 }
 
 // ----- 文档预览交互演示 -----
-function openDocPreview(el) {
+function openDocPreview(el, indexInList) {
     var name = (el && el.dataset.name) ? el.dataset.name : '';
     var type = (el && el.dataset.type) ? el.dataset.type : 'pdf';
     var author = (el && el.dataset.author) ? el.dataset.author : '';
     var time = (el && el.dataset.time) ? el.dataset.time : '';
     if (!name && el) {
-        var info = el.querySelector('.doc-file-name') || el.querySelector('span');
+        var info = el.querySelector('.doc-file-name') || el.querySelector('.doc-tree-file-name') || el.querySelector('span');
         if (info) name = info.textContent || '';
+    }
+    var list = window._docPreviewList || [];
+    var idx = indexInList >= 0 ? indexInList : (el && el.dataset && el.dataset.index !== undefined) ? parseInt(el.dataset.index, 10) : -1;
+    if (idx < 0 && list.length > 0) {
+        for (var i = 0; i < list.length; i++) { if ((list[i].name || '') === name) { idx = i; break; } }
+    }
+    window._docPreviewIndex = idx;
+    if (name && window._docRecent) {
+        window._docRecent = window._docRecent.filter(function(r) { return r.name !== name; });
+        window._docRecent.unshift({ name: name, type: type, author: author, time: time });
+        if (window._docRecent.length > 20) window._docRecent.pop();
     }
     var container = document.getElementById('phoneContent');
     if (!container) return;
@@ -16598,13 +16885,41 @@ function openDocPreview(el) {
     overlay = document.createElement('div');
     overlay.id = 'docPreviewOverlay';
     overlay.className = 'doc-preview-overlay';
+    var hasPrev = list.length > 0 && idx > 0;
+    var hasNext = list.length > 0 && idx >= 0 && idx < list.length - 1;
+    var prevBtn = hasPrev ? '<button class="doc-preview-prev" onclick="docPreviewPrev()" title="上一份"><i class="fas fa-chevron-left"></i></button>' : '';
+    var nextBtn = hasNext ? '<button class="doc-preview-next" onclick="docPreviewNext()" title="下一份"><i class="fas fa-chevron-right"></i></button>' : '';
     overlay.innerHTML = '<div class="doc-preview-header">' +
         '<button class="doc-preview-back" onclick="closeDocPreview()"><i class="fas fa-arrow-left"></i></button>' +
+        prevBtn +
         '<span class="doc-preview-filename" title="' + name.replace(/"/g, '&quot;') + '">' + name + '</span>' +
+        nextBtn +
         '<button class="doc-preview-close" onclick="closeDocPreview()"><i class="fas fa-times"></i></button>' +
         '</div><div class="doc-preview-body">' + bodyHtml + '</div>';
     container.appendChild(overlay);
     document.body.classList.add('doc-preview-open');
+}
+
+function docPreviewPrev() {
+    var list = window._docPreviewList || [];
+    var idx = window._docPreviewIndex;
+    if (idx <= 0 || !list[idx - 1]) return;
+    var f = list[idx - 1];
+    window._docPreviewIndex = idx - 1;
+    var fakeEl = { dataset: { name: f.name, type: f.type || 'pdf', author: f.author || '', time: f.time || '' } };
+    closeDocPreview();
+    openDocPreview(fakeEl, idx - 1);
+}
+
+function docPreviewNext() {
+    var list = window._docPreviewList || [];
+    var idx = window._docPreviewIndex;
+    if (idx < 0 || idx >= list.length - 1 || !list[idx + 1]) return;
+    var f = list[idx + 1];
+    window._docPreviewIndex = idx + 1;
+    var fakeEl = { dataset: { name: f.name, type: f.type || 'pdf', author: f.author || '', time: f.time || '' } };
+    closeDocPreview();
+    openDocPreview(fakeEl, idx + 1);
 }
 
 function closeDocPreview() {
